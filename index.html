@@ -28,7 +28,7 @@
         <span class="project-tag">Final Year Investigation</span>
         <h1 class="hero-title">Understanding Speech When Music Is Blasting</h1>
         <p class="hero-lead">
-          Have you ever tried answering a phone call or speaking to someone in a loud restaurant, at a wedding, or near a concert stage with thumping bass? Our investigation explores how to filter out overwhelming background music so human voices stay natural and intelligible.
+          Have you ever tried having a conversation with someone at a festival, in a loud club, or near a concert stage with thumping bass? When background music is deafening, understanding your speaking partner is almost impossible. In our setup, a headset wearer has <strong>one microphone on each side of their head</strong>, while a <strong>second person (a speaking partner) talks directly into the microphone on that side</strong>. Our investigation explores how to filter out overwhelming room music in real time so the headset wearer can clearly hear what their partner is saying.
         </p>
 
         <div class="author-strip">
@@ -40,8 +40,8 @@
           <div class="highlight-card">
             <span class="highlight-icon">🎙️</span>
             <div>
-              <span class="highlight-label">Approach</span>
-              <span class="highlight-val">Dual Microphones</span>
+              <span class="highlight-label">Setup</span>
+              <span class="highlight-val">Mic on Each Ear</span>
             </div>
           </div>
           <div class="highlight-card">
@@ -66,10 +66,10 @@
     <section class="section" id="problem">
       <div class="container">
         <span class="section-label">The Challenge</span>
-        <h2 class="section-title">Why Is It So Hard to Hear Over Music?</h2>
+        <h2 class="section-title">Why Can't We Hear Our Partner Over Loud Music?</h2>
         
         <p>
-          Unlike steady background hum like rain or an air conditioner, music is dynamic, loud, and constantly shifting. More importantly, <strong>music bass drums, basslines, and synthesizers vibrate at the exact same pitch range as human vocal cords</strong>.
+          Unlike steady background hum like rain or an air conditioner, music is dynamic, loud, and constantly shifting. When a speaking partner talks into the microphone on that side of the headset in a noisy venue, <strong>the booming music bass drums, basslines, and synthesizers vibrate in the exact same pitch range as their vocal cords</strong>.
         </p>
         
         <div class="story-card info">
@@ -142,6 +142,157 @@
           Instead of relying on a single blunt filter, our system couples a genre-informed baseline filter with an adaptive noise-canceling algorithm.
         </p>
 
+        <!-- Physical Setup Diagram Card -->
+        <div class="setup-diagram-card">
+          <div class="setup-header">
+            <span class="setup-badge">Physical Hardware Geometry</span>
+            <h3 class="setup-diagram-title">How the Dual Microphones Are Placed</h3>
+            <p class="setup-diagram-subtitle">
+              The headset wearer has <strong>one microphone on each side of their head</strong>. A second person (the speaking partner) stands nearby and talks into the microphone on that side, while the wearer's head physically shields the other microphone.
+            </p>
+          </div>
+
+          <!-- Responsive SVG Vector Illustration -->
+          <div class="setup-svg-container">
+            <svg viewBox="0 0 540 280" width="100%" height="auto" class="headset-setup-svg" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="partnerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#cbd5e1" stop-opacity="0.5" />
+                  <stop offset="100%" stop-color="#94a3b8" stop-opacity="0.25" />
+                </linearGradient>
+                <linearGradient id="wearerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#94a3b8" stop-opacity="0.45" />
+                  <stop offset="100%" stop-color="#64748b" stop-opacity="0.2" />
+                </linearGradient>
+                <linearGradient id="cupGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#1e293b" />
+                  <stop offset="100%" stop-color="#334155" />
+                </linearGradient>
+                <radialGradient id="micPulseTeal" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#0d9488" stop-opacity="0.85" />
+                  <stop offset="100%" stop-color="#0d9488" stop-opacity="0" />
+                </radialGradient>
+                <radialGradient id="micPulseBlue" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#2563eb" stop-opacity="0.85" />
+                  <stop offset="100%" stop-color="#2563eb" stop-opacity="0" />
+                </radialGradient>
+              </defs>
+
+              <!-- Ambient Music Waves from Room (Top-Right PA Loudspeaker) -->
+              <g class="room-sound-waves" opacity="0.65">
+                <rect x="460" y="24" width="24" height="36" rx="4" fill="#64748b" />
+                <polygon points="484,24 510,12 510,72 484,60" fill="#64748b" />
+                <circle cx="472" cy="35" r="4" fill="#94a3b8" />
+                <circle cx="472" cy="48" r="5" fill="#94a3b8" />
+                <text x="475" y="14" font-size="10.5" font-weight="700" fill="#64748b" text-anchor="middle">Venue Music (PA)</text>
+                
+                <path d="M 445,30 A 70,70 0 0,0 445,70" fill="none" stroke="#f43f5e" stroke-width="2.5" stroke-linecap="round" />
+                <path d="M 415,18 A 105,105 0 0,0 415,84" fill="none" stroke="#f43f5e" stroke-width="2.0" stroke-linecap="round" stroke-dasharray="4,3" />
+                <path d="M 375,8 A 155,155 0 0,0 375,104" fill="none" stroke="#f43f5e" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="4,4" />
+                <path d="M 330,0 A 210,210 0 0,0 330,126" fill="none" stroke="#f43f5e" stroke-width="1.4" stroke-linecap="round" stroke-dasharray="4,4" />
+                <path d="M 270,0 A 270,270 0 0,0 270,146" fill="none" stroke="#f43f5e" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="3,4" />
+              </g>
+
+              <!-- Speaking Partner (Left Figure Silhouette Profile) -->
+              <g class="speaking-partner-group">
+                <!-- Partner Title Pill -->
+                <rect x="30" y="22" width="132" height="24" rx="12" fill="#f0fdfa" stroke="#99f6e4" stroke-width="1.2" />
+                <text x="96" y="38" font-size="10" font-weight="800" fill="#0f766e" text-anchor="middle">SPEAKING PARTNER</text>
+                
+                <!-- Partner Body & Head Profile Facing Right -->
+                <path d="M 40,240 C 40,210 46,182 60,168 C 55,150 58,126 68,110 C 78,92 98,85 114,88 C 128,91 136,102 140,114 C 142,122 138,128 140,134 C 143,137 152,140 152,144 C 152,148 144,151 144,156 C 146,160 150,162 150,167 C 150,172 141,174 140,179 C 136,189 126,198 112,204 C 104,208 100,218 100,240 Z" 
+                      fill="url(#partnerGrad)" stroke="#94a3b8" stroke-width="1.8" stroke-linejoin="round" />
+                <circle cx="122" cy="116" r="2.5" fill="#64748b" opacity="0.7" />
+                
+                <!-- Direct Voice Soundwaves from Partner's Mouth Towards Wearer -->
+                <path d="M 156,134 A 14,14 0 0,1 156,156" fill="none" stroke="#0d9488" stroke-width="2.6" stroke-linecap="round" />
+                <path d="M 167,128 A 24,24 0 0,1 167,162" fill="none" stroke="#0d9488" stroke-width="2.2" stroke-linecap="round" />
+                <path d="M 179,122 A 36,36 0 0,1 179,168" fill="none" stroke="#0d9488" stroke-width="2.0" stroke-linecap="round" stroke-dasharray="3,2" />
+                <path d="M 192,116 A 50,50 0 0,1 192,174" fill="none" stroke="#0d9488" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="3,3" />
+              </g>
+
+              <!-- Headset Wearer (Center-Right Figure with Mic on Each Side) -->
+              <g class="headset-wearer-group">
+                <!-- Wearer Title Pill -->
+                <rect x="238" y="22" width="124" height="24" rx="12" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1.2" />
+                <text x="300" y="38" font-size="10" font-weight="800" fill="#1e40af" text-anchor="middle">HEADSET WEARER</text>
+
+                <!-- Wearer Head & Shoulders (Viewed from Front / Angled) -->
+                <path d="M 235,240 C 235,214 255,200 300,200 C 345,200 365,214 365,240 Z" 
+                      fill="url(#wearerGrad)" stroke="#94a3b8" stroke-width="1.5" />
+                <ellipse cx="300" cy="146" rx="42" ry="52" fill="url(#wearerGrad)" stroke="#94a3b8" stroke-width="2" />
+                <circle cx="286" cy="140" r="2.5" fill="#64748b" opacity="0.6" />
+                <circle cx="314" cy="140" r="2.5" fill="#64748b" opacity="0.6" />
+                <path d="M 297,148 L 300,154 L 303,148" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" />
+
+                <!-- Headset Headband Arching Over Top of Head -->
+                <path d="M 256,146 C 256,90 344,90 344,146" fill="none" stroke="#1e293b" stroke-width="5" stroke-linecap="round" />
+
+                <!-- Acoustic Head Shadow Acoustic Shield Indicator -->
+                <g class="head-shadow-tag">
+                  <rect x="256" y="174" width="88" height="18" rx="4" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1" />
+                  <text x="300" y="186.5" font-size="8.2" font-weight="700" fill="#64748b" text-anchor="middle">Head Shield (~12dB)</text>
+                </g>
+
+                <!-- 1. Microphone on Left Ear (Facing Speaking Partner) -->
+                <rect x="248" y="124" width="16" height="44" rx="8" fill="url(#cupGrad)" stroke="#1e293b" stroke-width="1.8" />
+                <circle cx="244" cy="146" r="13" fill="url(#micPulseTeal)" />
+                <circle cx="244" cy="146" r="5" fill="#0d9488" stroke="#ffffff" stroke-width="1.5" />
+
+                <!-- 2. Microphone on Right Ear (Far Side / Opposite Ear) -->
+                <rect x="336" y="124" width="16" height="44" rx="8" fill="url(#cupGrad)" stroke="#1e293b" stroke-width="1.8" />
+                <circle cx="356" cy="146" r="13" fill="url(#micPulseBlue)" />
+                <circle cx="356" cy="146" r="5" fill="#2563eb" stroke="#ffffff" stroke-width="1.5" />
+              </g>
+
+              <!-- Bottom Callout Badge: Mic on Partner's Side -->
+              <g transform="translate(130, 218)">
+                <rect x="0" y="0" width="168" height="44" rx="8" fill="#f0fdfa" stroke="#99f6e4" stroke-width="1.5" />
+                <circle cx="14" cy="15" r="5" fill="#0d9488" />
+                <text x="26" y="14" font-size="10" font-weight="800" fill="#0f766e">MIC ON PARTNER'S SIDE</text>
+                <text x="26" y="26" font-size="8.8" font-weight="600" fill="#115e59">Partner's Voice (Strong)</text>
+                <text x="26" y="37" font-size="8.2" font-weight="500" fill="#134e4a">+ Ambient Venue Music</text>
+                <path d="M 114,0 L 244,146" fill="none" stroke="#0d9488" stroke-width="1.2" stroke-dasharray="2,2" />
+              </g>
+
+              <!-- Bottom Callout Badge: Mic on Opposite Ear -->
+              <g transform="translate(325, 218)">
+                <rect x="0" y="0" width="175" height="44" rx="8" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1.5" />
+                <circle cx="14" cy="15" r="5" fill="#2563eb" />
+                <text x="26" y="14" font-size="10" font-weight="800" fill="#1e40af">MIC ON OPPOSITE EAR</text>
+                <text x="26" y="26" font-size="8.8" font-weight="600" fill="#1e3a8a">Shielded by Wearer's Head</text>
+                <text x="26" y="37" font-size="8.2" font-weight="500" fill="#1e3a8a">Samples Room Music Reference</text>
+                <path d="M 60,0 L 356,146" fill="none" stroke="#2563eb" stroke-width="1.2" stroke-dasharray="2,2" />
+              </g>
+            </svg>
+          </div>
+
+          <!-- Explanatory Dual Callouts -->
+          <div class="setup-callouts-grid">
+            <div class="setup-callout-card primary-card">
+              <div class="callout-header">
+                <span class="mic-dot primary-dot"></span>
+                <strong>1. Microphone Facing Partner</strong>
+                <span class="distance-pill">~30–40 cm from partner's mouth</span>
+              </div>
+              <p>
+                The speaking partner talks directly into this microphone on the side of the headset. It captures their spoken voice mixed with the loud venue music.
+              </p>
+            </div>
+
+            <div class="setup-callout-card reference-card">
+              <div class="callout-header">
+                <span class="mic-dot ref-dot"></span>
+                <strong>2. Reference Microphone on Opposite Ear</strong>
+                <span class="distance-pill">Shielded by wearer's head</span>
+              </div>
+              <p>
+                Located on the other side of the wearer's head. The wearer's skull acts as a natural acoustic shield (~12 dB head-shadow attenuation), so this microphone samples ambient venue music with minimal speech leakage.
+              </p>
+            </div>
+          </div>
+        </div>
+
         <div class="architecture-flow">
           <!-- Input Node -->
           <div class="flow-node input-node">
@@ -150,7 +301,7 @@
               <h4>Dual-Microphone Input</h4>
             </div>
             <p>
-              Two microphones capture sound simultaneously: a <strong>Primary Mic</strong> near the mouth (voice + room music) and a <strong>Reference Mic</strong> facing the room (music noise only).
+              The headset wearer has <strong>one microphone on each side of their head</strong>. A speaking partner speaks directly into the microphone on their side, while the opposite microphone is shielded by the wearer's head to sample ambient venue music.
             </p>
           </div>
 
@@ -204,7 +355,7 @@
               <h4>Smart Voice Protection (VAD)</h4>
             </div>
             <p>
-              Adaptive filters can accidentally cancel speech if voice leaks into the room microphone. A built-in voice activity detector monitors speech and <strong>freezes adaptation while you speak</strong> so your voice is never muted.
+              Adaptive filters can accidentally cancel speech if the partner's voice bleeds into the opposite microphone. A built-in voice activity detector monitors incoming speech and <strong>freezes filter adaptation while the partner speaks</strong>, preventing vocal distortion or accidental muting.
             </p>
           </div>
 
@@ -219,10 +370,10 @@
           <div class="flow-node output-node">
             <div class="flow-node-header">
               <span class="flow-step-badge" style="background: var(--color-primary); color: white;">OUT</span>
-              <h4>Clean Speech Output</h4>
+              <h4>Clean Speech to Earphones</h4>
             </div>
             <p>
-              The processed signal is delivered to earphones or communications headsets with natural voice warmth intact.
+              The filtered signal is delivered directly to the wearer's earphones so they can clearly hear and understand what their speaking partner is saying.
             </p>
           </div>
         </div>
@@ -268,29 +419,28 @@
             </div>
           </div>
 
-          <!-- Touch Slider Stage -->
+          <!-- Dynamic Filter Sweep Stage -->
           <div class="slider-stage" id="sliderStage">
-            <!-- Before Layer (Full Width Underlying) -->
-            <div class="slider-layer before">
-              <span class="slider-pill-badge before-badge">Before: Noisy Input</span>
-              <canvas id="canvasBefore" class="wave-canvas"></canvas>
-            </div>
+            <!-- Single Unified Dynamic Oscilloscope Canvas -->
+            <canvas id="signalCanvas" class="wave-canvas"></canvas>
 
-            <!-- After Layer (Clipped Width On Top) -->
-            <div class="slider-layer after" id="sliderAfterLayer">
-              <span class="slider-pill-badge after-badge">After: Enhanced</span>
-              <canvas id="canvasAfter" class="wave-canvas"></canvas>
+            <!-- Dynamic Filter Sweep Boundary Line -->
+            <div class="slider-handle-line" id="sliderHandleLine">
+              <div class="slider-scan-glow"></div>
             </div>
-
-            <!-- Draggable Handle Divider -->
-            <div class="slider-handle-line" id="sliderHandleLine"></div>
-            <div class="slider-handle-button" id="sliderHandleButton" aria-label="Drag to compare before and after">
+            <div class="slider-handle-button" id="sliderHandleButton" aria-label="Drag to sweep real-time filter across the sound wave">
               <span class="slider-handle-arrows">&lsaquo;&rsaquo;</span>
+            </div>
+
+            <!-- Real-Time Dynamic Zone Badges -->
+            <div class="slider-overlay-labels">
+              <span class="slider-pill-badge left-badge">Enhanced (Filter Applied)</span>
+              <span class="slider-pill-badge right-badge">Raw Noisy (Speech Buried)</span>
             </div>
           </div>
 
           <p class="slider-caption">
-            &larr; Drag handle to reveal cleaned speech waveform &rarr;
+            &larr; Drag handle left &amp; right to sweep the real-time filter across the waveform &rarr;
           </p>
 
           <!-- Dynamic Genre Details Card -->
@@ -382,7 +532,7 @@
             Our results are modest and reflect real-world acoustics. While the system demonstrates clear gains in heavy noise, in quiet or mild conditions filtering can introduce slight artifacts.
           </p>
           <p>
-            Additionally, if the speaker's mouth is too close to the secondary room microphone, small amounts of speech leakage can slightly limit maximum noise cancellation.
+            Additionally, if the speaking partner is standing at an angle where their voice leaks around the head into the opposite ear microphone, speech leakage can slightly limit maximum noise cancellation.
           </p>
         </div>
       </div>

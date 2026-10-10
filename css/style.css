@@ -591,61 +591,234 @@ strong {
   height: 0px;
 }
 
-/* Touch Comparison Slider */
+/* ==========================================================================
+   Physical Setup: Dual-Microphone Headset Geometry
+   ========================================================================== */
+.setup-diagram-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin: 22px 0;
+  box-shadow: var(--shadow-sm);
+}
+
+.setup-header {
+  margin-bottom: 12px;
+}
+
+.setup-badge {
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-primary);
+  background-color: var(--color-primary-light);
+  border: 1px solid var(--color-primary-border);
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  display: inline-block;
+  margin-bottom: 8px;
+}
+
+.setup-diagram-title {
+  font-size: 1.25rem;
+  margin-bottom: 6px;
+}
+
+.setup-diagram-subtitle {
+  font-size: 0.94rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+  margin-bottom: 0;
+}
+
+.setup-svg-container {
+  width: 100%;
+  background-color: var(--bg-subtle);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  overflow: hidden;
+  margin: 16px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.headset-setup-svg {
+  width: 100%;
+  max-width: 560px;
+  height: auto;
+  display: block;
+}
+
+.setup-callouts-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+@media (min-width: 540px) {
+  .setup-callouts-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.setup-callout-card {
+  background-color: var(--bg-subtle);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  border: 1px solid var(--border-subtle);
+}
+
+.setup-callout-card.primary-card {
+  border-left: 3px solid var(--color-teal);
+}
+
+.setup-callout-card.reference-card {
+  border-left: 3px solid var(--color-primary);
+}
+
+.callout-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.mic-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+}
+
+.mic-dot.primary-dot {
+  background-color: var(--color-teal);
+}
+
+.mic-dot.ref-dot {
+  background-color: var(--color-primary);
+}
+
+.distance-pill {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-faint);
+}
+
+.setup-callout-card p {
+  font-size: 0.88rem;
+  line-height: 1.5;
+  margin-bottom: 0;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   Single-Canvas Dynamic Filter Sweep Slider
+   ========================================================================== */
 .slider-stage {
   position: relative;
   width: 100%;
-  height: 200px;
+  height: 220px;
   background-color: var(--bg-subtle);
   border-radius: var(--radius-md);
   overflow: hidden;
   user-select: none;
-  touch-action: pan-y;
+  touch-action: none;
+  cursor: ew-resize;
   border: 1px solid var(--border-subtle);
 }
 
-.slider-layer {
-  position: absolute;
-  top: 0;
-  left: 0;
+.wave-canvas {
   width: 100%;
   height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 16px;
+  display: block;
+}
+
+.slider-handle-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  background-color: var(--color-teal);
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 20;
+}
+
+.slider-scan-glow {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -8px;
+  width: 18px;
+  background: linear-gradient(90deg, rgba(13, 148, 136, 0) 0%, rgba(13, 148, 136, 0.4) 50%, rgba(13, 148, 136, 0) 100%);
   pointer-events: none;
 }
 
-.slider-layer.before {
-  background-color: var(--bg-subtle);
-}
-
-.slider-layer.after {
+.slider-handle-button {
   position: absolute;
-  top: 0;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 42px;
+  height: 42px;
+  background-color: var(--bg-surface);
+  border: 2px solid var(--color-teal);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-md);
+  cursor: ew-resize;
+  pointer-events: all;
+  z-index: 25;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.slider-handle-button:active {
+  transform: translate(-50%, -50%) scale(1.08);
+  box-shadow: var(--shadow-lg);
+}
+
+.slider-overlay-labels {
+  position: absolute;
+  top: 10px;
   left: 0;
-  height: 100%;
-  width: 50%; /* Controlled by JS */
-  overflow: hidden;
-  background-color: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
-  border-right: 2px solid var(--color-primary);
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 12px;
+  pointer-events: none;
+  z-index: 15;
 }
 
-@media (prefers-color-scheme: dark) {
-  .slider-layer.after {
-    background-color: rgba(17, 24, 39, 0.88);
-  }
+.slider-pill-badge {
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
-/* Canvas Signal Representations */
-.wave-canvas {
-  width: 100%;
-  height: 120px;
-  display: block;
+.slider-pill-badge.left-badge {
+  background-color: var(--color-teal-light);
+  color: var(--color-teal);
+  border: 1px solid var(--color-teal-border);
+}
+
+.slider-pill-badge.right-badge {
+  background-color: var(--color-rose-light);
+  color: var(--color-rose);
+  border: 1px solid var(--color-rose-border);
 }
 
 .slider-pill-badge {

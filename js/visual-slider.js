@@ -1,232 +1,271 @@
 /**
- * ClearVoice Visual Aid: Interactive Before & After Signal Comparison Slider
- * Touch-friendly, procedural oscilloscope simulation for Open Day booth
+ * ClearVoice Visual Aid: Interactive Real-Time Dynamic Filter Sweep Slider
+ * Lightweight, zero external dependencies, robust touch/mouse support.
+ * Demonstrates the realistic difference between target clean speech,
+ * raw noisy input, and the post-filtered enhanced output.
  */
 
-document.addEventListener('DOMContentLoaded', () => {
-  initComparisonSlider();
-  initGenreSelector();
-});
-
-// Genre sound profile characteristics
+// Sound profile parameters for each genre
 const GENRE_PROFILES = {
   techno: {
     name: 'Techno / Electronic',
     bassFreq: '62.5 Hz & 125 Hz',
-    bassDesc: 'Concentrates 85% of its bass energy into rigid, repeating sub-bass kick pulses.',
+    bassDesc: 'Concentrates 85% of its bass energy into rigid, repeating sub-bass kick pulses that overpower delicate speech formants.',
     noiseAmp: 34,
-    noiseFreq: 0.09,
-    harmonicAmp: 18,
-    harmonicFreq: 0.18
+    noiseFreq: 0.075,
+    harmonicAmp: 16,
+    harmonicFreq: 0.15,
+    residualFloor: 0.14
   },
   rock: {
     name: 'Rock',
     bassFreq: '109.4 Hz',
-    bassDesc: 'Punches hard around 109 Hz from electric bass and kick drums, with higher-frequency guitar distortion.',
-    noiseAmp: 28,
-    noiseFreq: 0.14,
-    harmonicAmp: 12,
-    harmonicFreq: 0.28
+    bassDesc: 'Dense, aggressive energy from kick drums, electric bass, and high guitar distortion across the lower-mid range.',
+    noiseAmp: 30,
+    noiseFreq: 0.12,
+    harmonicAmp: 15,
+    harmonicFreq: 0.24,
+    residualFloor: 0.12
   },
   jazz: {
     name: 'Jazz',
     bassFreq: '78.1 Hz',
-    bassDesc: 'Features warm, dynamic acoustic upright bass blooms with acoustic instruments spread across frequencies.',
-    noiseAmp: 22,
-    noiseFreq: 0.07,
-    harmonicAmp: 10,
-    harmonicFreq: 0.16
+    bassDesc: 'Acoustic upright bass resonance with dynamic instrument variations and wide dynamic swings.',
+    noiseAmp: 24,
+    noiseFreq: 0.055,
+    harmonicAmp: 12,
+    harmonicFreq: 0.14,
+    residualFloor: 0.10
   }
 };
 
 let currentGenre = 'techno';
+let currentSplitRatio = 0.50; // Filter boundary position: 0.05 to 0.95
 
-function initComparisonSlider() {
+function initDynamicSweepSlider() {
   const stage = document.getElementById('sliderStage');
-  const afterLayer = document.getElementById('sliderAfterLayer');
+  const canvas = document.getElementById('signalCanvas');
   const handleLine = document.getElementById('sliderHandleLine');
   const handleButton = document.getElementById('sliderHandleButton');
 
-  if (!stage || !afterLayer || !handleLine || !handleButton) return;
+  if (!stage || !canvas || !handleLine || !handleButton) return;
 
   let isDragging = false;
 
-  function updateSliderPosition(clientX) {
+  function updateHandle(clientX) {
     const rect = stage.getBoundingClientRect();
-    let x = clientX - rect.left;
-    let percentage = (x / rect.width) * 100;
-    
-    // Clamp between 5% and 95%
-    percentage = Math.max(5, Math.min(95, percentage));
+    if (rect.width <= 0) return;
+    const x = clientX - rect.left;
+    const ratio = x / rect.width;
 
-    afterLayer.style.width = `${percentage}%`;
-    handleLine.style.left = `${percentage}%`;
-    handleButton.style.left = `${percentage}%`;
+    // Clamp between 0.05 and 0.95
+    currentSplitRatio = Math.max(0.05, Math.min(0.95, ratio));
+    const percent = (currentSplitRatio * 100).toFixed(2);
+
+    handleLine.style.left = percent + '%';
+    handleButton.style.left = percent + '%';
+
+    renderCanvas();
   }
 
-  // Mouse Events
-  handleButton.addEventListener('mousedown', (e) => {
+  // Unified Pointer Events (works for both modern touch & mouse smoothly)
+  function onPointerDown(e) {
     isDragging = true;
+    try {
+      stage.setPointerCapture(e.pointerId);
+    } catch (err) {}
+    updateHandle(e.clientX);
     e.preventDefault();
-  });
-
-  window.addEventListener('mousemove', (e) => {
-    if (!isDragging) return;
-    updateSliderPosition(e.clientX);
-  });
-
-  window.addEventListener('mouseup', () => {
-    isDragging = false;
-  });
-
-  // Touch Events (Mobile First)
-  handleButton.addEventListener('touchstart', (e) => {
-    isDragging = true;
-  }, { passive: true });
-
-  window.addEventListener('touchmove', (e) => {
-    if (!isDragging || !e.touches[0]) return;
-    updateSliderPosition(e.touches[0].clientX);
-  }, { passive: true });
-
-  window.addEventListener('touchend', () => {
-    isDragging = false;
-  });
-
-  // Allow clicking anywhere on stage to jump slider
-  stage.addEventListener('click', (e) => {
-    updateSliderPosition(e.clientX);
-  });
-
-  // Setup Procedural Canvases
-  setupSignalCanvases();
-}
-
-function setupSignalCanvases() {
-  const canvasBefore = document.getElementById('canvasBefore');
-  const canvasAfter = document.getElementById('canvasAfter');
-
-  if (!canvasBefore || !canvasAfter) return;
-
-  function resizeAndDraw() {
-    const dpr = window.devicePixelRatio || 1;
-    const rect = canvasBefore.getBoundingClientRect();
-
-    [canvasBefore, canvasAfter].forEach(canvas => {
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
-      const ctx = canvas.getContext('2d');
-      ctx.scale(dpr, dpr);
-    });
-
-    drawSignal(canvasBefore, true);
-    drawSignal(canvasAfter, false);
   }
 
-  window.addEventListener('resize', resizeAndDraw);
-  resizeAndDraw();
+  function onPointerMove(e) {
+    if (!isDragging) return;
+    updateHandle(e.clientX);
+    e.preventDefault();
+  }
+
+  function onPointerUp(e) {
+    if (isDragging) {
+      isDragging = false;
+      try {
+        stage.releasePointerCapture(e.pointerId);
+      } catch (err) {}
+    }
+  }
+
+  stage.addEventListener('pointerdown', onPointerDown);
+  stage.addEventListener('pointermove', onPointerMove);
+  stage.addEventListener('pointerup', onPointerUp);
+  stage.addEventListener('pointercancel', onPointerUp);
+
+  // Fallback direct click
+  stage.addEventListener('click', (e) => {
+    updateHandle(e.clientX);
+  });
+
+  // ResizeObserver for reliable, instant sizing upon layout
+  function handleResize() {
+    renderCanvas();
+  }
+
+  if (window.ResizeObserver) {
+    const ro = new ResizeObserver(handleResize);
+    ro.observe(stage);
+  } else {
+    window.addEventListener('resize', handleResize);
+  }
+
+  // Initial draw
+  renderCanvas();
+  setTimeout(renderCanvas, 60);
+  setTimeout(renderCanvas, 250);
 }
 
-/**
- * Draws procedural speech & music waveforms
- * isNoisy = true: Speech buried in massive low-frequency music interference + clean reference
- * isNoisy = false: Cleaned voice peaks + clean reference overlay + faint ghost noise
- */
-function drawSignal(canvas, isNoisy) {
-  const ctx = canvas.getContext('2d');
-  const width = canvas.width / (window.devicePixelRatio || 1);
-  const height = canvas.height / (window.devicePixelRatio || 1);
-  const midY = height / 2;
+function renderCanvas() {
+  const stage = document.getElementById('sliderStage');
+  const canvas = document.getElementById('signalCanvas');
+  if (!stage || !canvas) return;
 
+  const rect = stage.getBoundingClientRect();
+  if (rect.width <= 0 || rect.height <= 0) return;
+
+  const dpr = window.devicePixelRatio || 1;
+  const targetW = Math.round(rect.width * dpr);
+  const targetH = Math.round(rect.height * dpr);
+
+  if (canvas.width !== targetW || canvas.height !== targetH) {
+    canvas.width = targetW;
+    canvas.height = targetH;
+  }
+
+  const ctx = canvas.getContext('2d');
+  const width = rect.width;
+  const height = rect.height;
+  const midY = height / 2;
+  const splitX = width * currentSplitRatio;
+
+  ctx.save();
+  ctx.scale(dpr, dpr);
   ctx.clearRect(0, 0, width, height);
 
-  // Background grid lines (subtle oscilloscope feel)
-  ctx.strokeStyle = isNoisy ? 'rgba(244, 63, 94, 0.1)' : 'rgba(13, 148, 136, 0.1)';
+  // 1. Zone Background Tints
+  // Left: Enhanced Filter Zone (Subtle Teal)
+  ctx.fillStyle = 'rgba(13, 148, 136, 0.07)';
+  ctx.fillRect(0, 0, splitX, height);
+
+  // Right: Raw Noisy Zone (Subtle Rose)
+  ctx.fillStyle = 'rgba(244, 63, 94, 0.07)';
+  ctx.fillRect(splitX, 0, width - splitX, height);
+
+  // 2. Center Zero-Axis Guide Line
+  ctx.strokeStyle = 'rgba(100, 116, 139, 0.15)';
   ctx.lineWidth = 1;
-  ctx.setLineDash([]);
+  ctx.setLineDash([2, 4]);
   ctx.beginPath();
   ctx.moveTo(0, midY);
   ctx.lineTo(width, midY);
   ctx.stroke();
+  ctx.setLineDash([]);
 
-  const profile = GENRE_PROFILES[currentGenre];
+  const profile = GENRE_PROFILES[currentGenre] || GENRE_PROFILES.techno;
+  const totalPoints = Math.max(10, Math.floor(width));
 
-  // Pre-calculate signal arrays for smooth rendering
-  const cleanSpeechPoints = new Float32Array(width);
-  const noisyPoints = new Float32Array(width);
-  const enhancedPoints = new Float32Array(width);
+  const cleanY = new Float32Array(totalPoints);
+  const noisyY = new Float32Array(totalPoints);
+  const enhancedY = new Float32Array(totalPoints);
 
-  for (let x = 0; x < width; x++) {
-    // 1. Spoken Word Formant Wave (Human Voice Envelope)
-    const syllable1 = Math.exp(-Math.pow((x - width * 0.3) / (width * 0.1), 2));
-    const syllable2 = Math.exp(-Math.pow((x - width * 0.7) / (width * 0.12), 2));
-    const speechEnvelope = (syllable1 * 1.0 + syllable2 * 0.85);
-    
-    // Voice fundamental and harmonics (~150 Hz to 1 kHz simulation)
-    const voiceCarrier = Math.sin(x * 0.35) * 16 + Math.sin(x * 0.72) * 8;
-    const speechSignal = speechEnvelope * voiceCarrier;
-    cleanSpeechPoints[x] = midY + speechSignal;
+  // 3. Synthesize realistic waveforms:
+  for (let x = 0; x < totalPoints; x++) {
+    const t = x / totalPoints;
 
-    // 2. Music Noise Component
-    const bassSwell = Math.sin(x * profile.noiseFreq) * profile.noiseAmp;
-    const harmonicSwell = Math.sin(x * profile.harmonicFreq) * profile.harmonicAmp;
-    const beatThump = Math.sin(x * 0.03) * 10;
-    const musicNoise = bassSwell + harmonicSwell + beatThump;
+    // A. Natural Speech Vocal Envelope (3 distinct spoken words / syllables)
+    const word1 = Math.exp(-Math.pow((t - 0.22) / 0.055, 2)) * 1.0;
+    const word2 = Math.exp(-Math.pow((t - 0.52) / 0.075, 2)) * 0.92;
+    const word3 = Math.exp(-Math.pow((t - 0.80) / 0.060, 2)) * 0.80;
+    const vocalEnvelope = word1 + word2 + word3;
 
-    noisyPoints[x] = midY + speechSignal + musicNoise;
+    // Vocal pitch formants (fundamental ~130 Hz + 2nd & 3rd harmonics)
+    const voiceCarrier = Math.sin(x * 0.38) * 16.0 + Math.sin(x * 0.76) * 8.5 + Math.sin(x * 1.14) * 3.8;
+    const speechSignal = vocalEnvelope * voiceCarrier;
+    cleanY[x] = midY - speechSignal;
 
-    // 3. Enhanced Output (Noise attenuated by ~90-95%)
-    const residualBass = Math.sin(x * profile.noiseFreq) * (profile.noiseAmp * 0.08);
-    enhancedPoints[x] = midY + speechSignal + residualBass;
+    // B. Background Music Interference (Loud rhythmic bass beats & harmonics)
+    const bassBeat = Math.sin(x * profile.noiseFreq) * profile.noiseAmp;
+    const bassHarmonic = Math.sin(x * profile.harmonicFreq) * profile.harmonicAmp;
+    const rhythmicThump = Math.sin(x * 0.022) * 10;
+    const musicInterference = bassBeat + bassHarmonic + rhythmicThump;
+
+    noisyY[x] = midY - (speechSignal + musicInterference);
+
+    // C. Realistic Enhanced Signal (Visibly distinct from target clean speech!):
+    // 1. Voice formant is largely recovered with slight peak attenuation (~88%)
+    const recoveredVoice = speechSignal * 0.88;
+    // 2. Realistic residual noise floor (DSP filters never leave 100% silence)
+    const residualNoise = (Math.sin(x * profile.noiseFreq * 1.4) * (profile.noiseAmp * profile.residualFloor)) +
+                          (Math.sin(x * 0.22) * 2.8);
+    // 3. Subtle filter transient ringing / phase texture
+    const filterRipple = Math.sin(x * 0.46) * (vocalEnvelope * 2.5);
+
+    enhancedY[x] = midY - (recoveredVoice + residualNoise + filterRipple);
   }
 
-  // --- Layer 1: Ghost Noisy Wave on Enhanced Side (Overlay Effect) ---
-  if (!isNoisy) {
-    ctx.lineWidth = 1.6;
-    ctx.strokeStyle = 'rgba(244, 63, 94, 0.22)'; // Soft translucent red
-    ctx.setLineDash([]);
-    ctx.beginPath();
-    for (let x = 0; x < width; x++) {
-      if (x === 0) ctx.moveTo(x, noisyPoints[x]);
-      else ctx.lineTo(x, noisyPoints[x]);
-    }
-    ctx.stroke();
-  }
-
-  // --- Layer 2: Clean Speech Reference Wave (Target Ground Truth) ---
-  ctx.lineWidth = 1.8;
-  ctx.strokeStyle = 'rgba(217, 119, 6, 0.85)'; // Amber/Gold reference
-  ctx.setLineDash([4, 4]); // Dashed line for reference target
+  // --- Layer 1: Ghost Noisy Wave on Left (Shows Noise That Was Removed) ---
+  ctx.lineWidth = 1.4;
+  ctx.strokeStyle = 'rgba(244, 63, 94, 0.18)';
+  ctx.setLineDash([]);
   ctx.beginPath();
-  for (let x = 0; x < width; x++) {
-    if (x === 0) ctx.moveTo(x, cleanSpeechPoints[x]);
-    else ctx.lineTo(x, cleanSpeechPoints[x]);
+  for (let x = 0; x < splitX; x++) {
+    if (x === 0) ctx.moveTo(x, noisyY[x]);
+    else ctx.lineTo(x, noisyY[x]);
   }
   ctx.stroke();
 
-  // --- Layer 3: Primary Foreground Wave ---
-  ctx.setLineDash([]); // Solid line for active output
+  // --- Layer 2: Target Clean Speech Reference (Dashed Amber Trace) ---
+  // Drawn across full canvas as the ground-truth benchmark
+  ctx.lineWidth = 1.8;
+  ctx.strokeStyle = '#d97706'; // Amber reference
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath();
+  for (let x = 0; x < totalPoints; x++) {
+    if (x === 0) ctx.moveTo(x, cleanY[x]);
+    else ctx.lineTo(x, cleanY[x]);
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // --- Layer 3: Dynamic Active Continuous Waveform ---
+  // Left of splitX = Realistically Enhanced Output (Teal)
+  // Right of splitX = Raw Noisy Waveform (Rose)
   ctx.lineWidth = 2.4;
 
-  if (isNoisy) {
-    // Bold Noisy Wave
-    ctx.strokeStyle = '#f43f5e'; // Rose
-    ctx.beginPath();
-    for (let x = 0; x < width; x++) {
-      if (x === 0) ctx.moveTo(x, noisyPoints[x]);
-      else ctx.lineTo(x, noisyPoints[x]);
-    }
-    ctx.stroke();
-  } else {
-    // Bold Cleaned / Enhanced Wave
-    ctx.strokeStyle = '#0d9488'; // Teal
-    ctx.beginPath();
-    for (let x = 0; x < width; x++) {
-      if (x === 0) ctx.moveTo(x, enhancedPoints[x]);
-      else ctx.lineTo(x, enhancedPoints[x]);
-    }
-    ctx.stroke();
+  // A) Enhanced Wave (Left side)
+  ctx.strokeStyle = '#0d9488';
+  ctx.beginPath();
+  const splitInt = Math.min(totalPoints, Math.floor(splitX));
+  for (let x = 0; x <= splitInt; x++) {
+    if (x === 0) ctx.moveTo(x, enhancedY[x]);
+    else ctx.lineTo(x, enhancedY[x]);
   }
+  ctx.stroke();
+
+  // B) Raw Noisy Wave (Right side)
+  ctx.strokeStyle = '#f43f5e';
+  ctx.beginPath();
+  for (let x = splitInt; x < totalPoints; x++) {
+    if (x === splitInt) ctx.moveTo(x, noisyY[x]);
+    else ctx.lineTo(x, noisyY[x]);
+  }
+  ctx.stroke();
+
+  // --- Layer 4: Vertical Filter Sweep Scanner Glow ---
+  const grad = ctx.createLinearGradient(splitX - 10, 0, splitX + 10, 0);
+  grad.addColorStop(0, 'rgba(13, 148, 136, 0)');
+  grad.addColorStop(0.5, 'rgba(13, 148, 136, 0.45)');
+  grad.addColorStop(1, 'rgba(13, 148, 136, 0)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(splitX - 10, 0, 20, height);
+
+  ctx.restore();
 }
 
 function initGenreSelector() {
@@ -248,11 +287,20 @@ function initGenreSelector() {
       if (freqBadge) freqBadge.textContent = info.bassFreq;
       if (descText) descText.textContent = info.bassDesc;
 
-      // Redraw canvases with the new genre profile
-      const canvasBefore = document.getElementById('canvasBefore');
-      const canvasAfter = document.getElementById('canvasAfter');
-      if (canvasBefore) drawSignal(canvasBefore, true);
-      if (canvasAfter) drawSignal(canvasAfter, false);
+      renderCanvas();
     });
   });
 }
+
+// Immediate + DOM ready initialization
+function initAll() {
+  initDynamicSweepSlider();
+  initGenreSelector();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initAll);
+} else {
+  initAll();
+}
+window.addEventListener('load', renderCanvas);
