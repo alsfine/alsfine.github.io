@@ -129,8 +129,8 @@ function setupSignalCanvases() {
 
 /**
  * Draws procedural speech & music waveforms
- * isNoisy = true: Speech buried in massive low-frequency music interference
- * isNoisy = false: Cleaned voice peaks with background music bass suppressed
+ * isNoisy = true: Speech buried in massive low-frequency music interference + clean reference
+ * isNoisy = false: Cleaned voice peaks + clean reference overlay + faint ghost noise
  */
 function drawSignal(canvas, isNoisy) {
   const ctx = canvas.getContext('2d');
@@ -141,23 +141,23 @@ function drawSignal(canvas, isNoisy) {
   ctx.clearRect(0, 0, width, height);
 
   // Background grid lines (subtle oscilloscope feel)
-  ctx.strokeStyle = isNoisy ? 'rgba(244, 63, 94, 0.12)' : 'rgba(20, 184, 166, 0.12)';
+  ctx.strokeStyle = isNoisy ? 'rgba(244, 63, 94, 0.1)' : 'rgba(13, 148, 136, 0.1)';
   ctx.lineWidth = 1;
+  ctx.setLineDash([]);
   ctx.beginPath();
   ctx.moveTo(0, midY);
   ctx.lineTo(width, midY);
   ctx.stroke();
 
-  // Waveform styling
-  ctx.lineWidth = 2.2;
-  ctx.strokeStyle = isNoisy ? '#f43f5e' : '#0d9488'; // Rose for noisy, Teal for enhanced
-  ctx.beginPath();
-
   const profile = GENRE_PROFILES[currentGenre];
+
+  // Pre-calculate signal arrays for smooth rendering
+  const cleanSpeechPoints = new Float32Array(width);
+  const noisyPoints = new Float32Array(width);
+  const enhancedPoints = new Float32Array(width);
 
   for (let x = 0; x < width; x++) {
     // 1. Spoken Word Formant Wave (Human Voice Envelope)
-    // Syllable packet bursts around 20%-40% and 60%-80% across the width
     const syllable1 = Math.exp(-Math.pow((x - width * 0.3) / (width * 0.1), 2));
     const syllable2 = Math.exp(-Math.pow((x - width * 0.7) / (width * 0.12), 2));
     const speechEnvelope = (syllable1 * 1.0 + syllable2 * 0.85);
@@ -165,31 +165,68 @@ function drawSignal(canvas, isNoisy) {
     // Voice fundamental and harmonics (~150 Hz to 1 kHz simulation)
     const voiceCarrier = Math.sin(x * 0.35) * 16 + Math.sin(x * 0.72) * 8;
     const speechSignal = speechEnvelope * voiceCarrier;
+    cleanSpeechPoints[x] = midY + speechSignal;
 
     // 2. Music Noise Component
-    let musicNoise = 0;
-    if (isNoisy) {
-      // Massive sub-bass kick swell + harmonics
-      const bassSwell = Math.sin(x * profile.noiseFreq) * profile.noiseAmp;
-      const harmonicSwell = Math.sin(x * profile.harmonicFreq) * profile.harmonicAmp;
-      const beatThump = Math.sin(x * 0.03) * 10;
-      musicNoise = bassSwell + harmonicSwell + beatThump;
-    } else {
-      // Cleaned signal: music noise flattened down to ~5-10% residual
-      const residualBass = Math.sin(x * profile.noiseFreq) * (profile.noiseAmp * 0.08);
-      musicNoise = residualBass;
-    }
+    const bassSwell = Math.sin(x * profile.noiseFreq) * profile.noiseAmp;
+    const harmonicSwell = Math.sin(x * profile.harmonicFreq) * profile.harmonicAmp;
+    const beatThump = Math.sin(x * 0.03) * 10;
+    const musicNoise = bassSwell + harmonicSwell + beatThump;
 
-    const y = midY + speechSignal + musicNoise;
+    noisyPoints[x] = midY + speechSignal + musicNoise;
 
-    if (x === 0) {
-      ctx.moveTo(x, y);
-    } else {
-      ctx.lineTo(x, y);
-    }
+    // 3. Enhanced Output (Noise attenuated by ~90-95%)
+    const residualBass = Math.sin(x * profile.noiseFreq) * (profile.noiseAmp * 0.08);
+    enhancedPoints[x] = midY + speechSignal + residualBass;
   }
 
+  // --- Layer 1: Ghost Noisy Wave on Enhanced Side (Overlay Effect) ---
+  if (!isNoisy) {
+    ctx.lineWidth = 1.6;
+    ctx.strokeStyle = 'rgba(244, 63, 94, 0.22)'; // Soft translucent red
+    ctx.setLineDash([]);
+    ctx.beginPath();
+    for (let x = 0; x < width; x++) {
+      if (x === 0) ctx.moveTo(x, noisyPoints[x]);
+      else ctx.lineTo(x, noisyPoints[x]);
+    }
+    ctx.stroke();
+  }
+
+  // --- Layer 2: Clean Speech Reference Wave (Target Ground Truth) ---
+  ctx.lineWidth = 1.8;
+  ctx.strokeStyle = 'rgba(217, 119, 6, 0.85)'; // Amber/Gold reference
+  ctx.setLineDash([4, 4]); // Dashed line for reference target
+  ctx.beginPath();
+  for (let x = 0; x < width; x++) {
+    if (x === 0) ctx.moveTo(x, cleanSpeechPoints[x]);
+    else ctx.lineTo(x, cleanSpeechPoints[x]);
+  }
   ctx.stroke();
+
+  // --- Layer 3: Primary Foreground Wave ---
+  ctx.setLineDash([]); // Solid line for active output
+  ctx.lineWidth = 2.4;
+
+  if (isNoisy) {
+    // Bold Noisy Wave
+    ctx.strokeStyle = '#f43f5e'; // Rose
+    ctx.beginPath();
+    for (let x = 0; x < width; x++) {
+      if (x === 0) ctx.moveTo(x, noisyPoints[x]);
+      else ctx.lineTo(x, noisyPoints[x]);
+    }
+    ctx.stroke();
+  } else {
+    // Bold Cleaned / Enhanced Wave
+    ctx.strokeStyle = '#0d9488'; // Teal
+    ctx.beginPath();
+    for (let x = 0; x < width; x++) {
+      if (x === 0) ctx.moveTo(x, enhancedPoints[x]);
+      else ctx.lineTo(x, enhancedPoints[x]);
+    }
+    ctx.stroke();
+  }
 }
 
 function initGenreSelector() {

@@ -47,8 +47,8 @@
           <div class="highlight-card">
             <span class="highlight-icon">⚡</span>
             <div>
-              <span class="highlight-label">Processing Delay</span>
-              <span class="highlight-val">&lt; 0.15 ms (Zero Echo)</span>
+              <span class="highlight-label">Expected Delay</span>
+              <span class="highlight-val">~10–20 ms (Low Lag)</span>
             </div>
           </div>
           <div class="highlight-card">
@@ -142,35 +142,88 @@
           Instead of relying on a single blunt filter, our system couples a genre-informed baseline filter with an adaptive noise-canceling algorithm.
         </p>
 
-        <div class="step-list">
-          <div class="step-item">
-            <div class="step-num">1</div>
-            <div class="step-content">
+        <div class="architecture-flow">
+          <!-- Input Node -->
+          <div class="flow-node input-node">
+            <div class="flow-node-header">
+              <span class="flow-step-badge">IN</span>
+              <h4>Dual-Microphone Input</h4>
+            </div>
+            <p>
+              Two microphones capture sound simultaneously: a <strong>Primary Mic</strong> near the mouth (voice + room music) and a <strong>Reference Mic</strong> facing the room (music noise only).
+            </p>
+          </div>
+
+          <!-- Connector 1 -->
+          <div class="flow-connector">
+            <div class="flow-arrow-line"></div>
+            <span class="flow-arrow-badge"><span class="flow-arrow-icon">&darr;</span> Pre-filters baseline bass</span>
+            <div class="flow-arrow-line"></div>
+          </div>
+
+          <!-- Stage 1 -->
+          <div class="flow-node stage-node">
+            <div class="flow-node-header">
+              <span class="flow-step-badge">1</span>
               <h4>Genre-Informed Baseline Filter</h4>
-              <p>
-                Only these static filters are genre-informed. We analyzed 150 music tracks and found that different genres place their booming bass in distinct, predictable spots (e.g. Techno sub-bass vs. Rock kick-drum punch). This stage gently suppresses those specific resonance areas without gutting the speaker's vocal range.
-              </p>
             </div>
+            <p>
+              <strong>Only these static pre-filters are genre-informed.</strong> Different music genres put their booming bass in predictable frequency spots (e.g. Techno sub-bass vs. Rock kick-drum punch). This stage gently suppresses those specific resonance areas without gutting the speaker's vocal range.
+            </p>
           </div>
 
-          <div class="step-item">
-            <div class="step-num">2</div>
-            <div class="step-content">
+          <!-- Connector 2 -->
+          <div class="flow-connector">
+            <div class="flow-arrow-line"></div>
+            <span class="flow-arrow-badge"><span class="flow-arrow-icon">&darr;</span> Feeds to adaptive stage</span>
+            <div class="flow-arrow-line"></div>
+          </div>
+
+          <!-- Stage 2 -->
+          <div class="flow-node stage-node">
+            <div class="flow-node-header">
+              <span class="flow-step-badge">2</span>
               <h4>Adaptive Room Tracking (NLMS)</h4>
-              <p>
-                A secondary reference microphone listens to the background music in the room. An adaptive algorithm (Normalized Least Mean Squares) calculates how the sound bounces off the walls and continuously subtracts that noise from the voice microphone in real time.
-              </p>
             </div>
+            <p>
+              An adaptive algorithm (Normalized Least Mean Squares) continuously calculates how the room's music bounces off walls and subtracts that background noise from the primary signal in real time.
+            </p>
           </div>
 
-          <div class="step-item">
-            <div class="step-num">3</div>
-            <div class="step-content">
+          <!-- Connector 3 -->
+          <div class="flow-connector">
+            <div class="flow-arrow-line"></div>
+            <span class="flow-arrow-badge" style="color: var(--color-amber);"><span class="flow-arrow-icon" style="color: var(--color-amber);">🛡️</span> Safeguarded by Voice Detector</span>
+            <div class="flow-arrow-line"></div>
+          </div>
+
+          <!-- Stage 3 (Guard) -->
+          <div class="flow-node guard-node">
+            <div class="flow-node-header">
+              <span class="flow-step-badge" style="background: var(--color-amber-light); color: var(--color-amber); border-color: var(--color-amber-border);">3</span>
               <h4>Smart Voice Protection (VAD)</h4>
-              <p>
-                Adaptive algorithms can accidentally cancel your voice if your speech leaks into the room microphone. A built-in voice activity detector pauses adaptation whenever you speak, protecting your voice from self-cancellation.
-              </p>
             </div>
+            <p>
+              Adaptive filters can accidentally cancel speech if voice leaks into the room microphone. A built-in voice activity detector monitors speech and <strong>freezes adaptation while you speak</strong> so your voice is never muted.
+            </p>
+          </div>
+
+          <!-- Connector 4 -->
+          <div class="flow-connector">
+            <div class="flow-arrow-line"></div>
+            <span class="flow-arrow-badge"><span class="flow-arrow-icon">&darr;</span> Delivers clean speech</span>
+            <div class="flow-arrow-line"></div>
+          </div>
+
+          <!-- Output Node -->
+          <div class="flow-node output-node">
+            <div class="flow-node-header">
+              <span class="flow-step-badge" style="background: var(--color-primary); color: white;">OUT</span>
+              <h4>Clean Speech Output</h4>
+            </div>
+            <p>
+              The processed signal is delivered to earphones or communications headsets with natural voice warmth intact.
+            </p>
           </div>
         </div>
       </div>
@@ -197,6 +250,22 @@
             <button type="button" class="genre-tab-btn active" data-genre="techno">Techno</button>
             <button type="button" class="genre-tab-btn" data-genre="rock">Rock</button>
             <button type="button" class="genre-tab-btn" data-genre="jazz">Jazz</button>
+          </div>
+
+          <!-- Visual Waveform Legend -->
+          <div class="signal-legend">
+            <div class="legend-item">
+              <span class="legend-swatch noisy"></span>
+              <span>Noisy Input (Speech + Music)</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-swatch enhanced"></span>
+              <span>Enhanced Output</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-swatch reference"></span>
+              <span>Target Clean Speech</span>
+            </div>
           </div>
 
           <!-- Touch Slider Stage -->
@@ -249,37 +318,40 @@
           <!-- STOI Metric Card -->
           <div class="metric-box">
             <div class="metric-header">
-              <span class="metric-title">Speech Clarity Score (STOI)</span>
-              <span class="metric-score-tag">International Standard</span>
+              <span class="metric-title">Word Clarity Score (STOI)</span>
+              <span class="metric-score-tag">Standard Metric</span>
             </div>
             <p class="metric-desc">
-              STOI is a score from <strong>0.0 to 1.0</strong> that predicts how clearly human listeners can distinguish individual speech sounds. Unlike raw volume reduction, it specifically penalizes distortion of subtle consonant cues.
+              Think of this as a test for how distorted the speech sounds. If someone says the word <em>"bat"</em>, does it still sound like <em>"bat"</em>, or does the noise turn it into <em>"cat"</em> or muffled mush?
+            </p>
+            <p class="metric-desc" style="margin-top: -6px;">
+              A score of <strong>1.0</strong> means crystal-clear speech, while <strong>0.0</strong> means completely unrecognisable.
             </p>
 
             <div class="score-bars">
               <div class="score-bar-row">
                 <div class="score-label-row">
-                  <span class="score-label-name">Severe Noise (-15 dB SNR)</span>
+                  <span class="score-label-name">Heavy Noise (-15 dB)</span>
                   <span>Clarity Gain: +0.06</span>
                 </div>
                 <div class="score-track">
                   <div class="score-fill enhanced" data-width="61%" style="width: 0%;"></div>
                 </div>
-                <span style="font-size: 0.78rem; color: var(--text-faint);">
-                  Raw: ~0.50 &rarr; Enhanced: ~0.61 (Modest, noticeable improvement in heavy noise)
+                <span style="font-size: 0.8rem; color: var(--text-faint);">
+                  Raw: ~0.50 &rarr; Enhanced: ~0.61 (A modest, helpful boost when background music is loud)
                 </span>
               </div>
 
               <div class="score-bar-row">
                 <div class="score-label-row">
-                  <span class="score-label-name">Mild Noise (0 dB SNR)</span>
-                  <span>Clarity Gain: Marginal</span>
+                  <span class="score-label-name">Mild Noise (0 dB)</span>
+                  <span>Clarity Gain: Minimal</span>
                 </div>
                 <div class="score-track">
                   <div class="score-fill unprocessed" data-width="76%" style="width: 0%;"></div>
                 </div>
-                <span style="font-size: 0.78rem; color: var(--text-faint);">
-                  Raw: ~0.75 &rarr; Enhanced: ~0.76 (Speech is already clear; filtering provides minimal benefit)
+                <span style="font-size: 0.8rem; color: var(--text-faint);">
+                  Raw: ~0.75 &rarr; Enhanced: ~0.76 (Speech is already easy to hear; extra filtering is unnecessary)
                 </span>
               </div>
             </div>
@@ -288,11 +360,14 @@
           <!-- WRS Metric Card -->
           <div class="metric-box">
             <div class="metric-header">
-              <span class="metric-title">Word Recognition (WRS)</span>
-              <span class="metric-score-tag">Speech-to-Text Test</span>
+              <span class="metric-title">Word Recognition Percentage (WRS)</span>
+              <span class="metric-score-tag">Practical Test</span>
             </div>
             <p class="metric-desc">
-              We tested automated speech-to-text models on standardized test sentences. In severe noise where raw audio failed to detect words, our adaptive pipeline helped recover understandable words, with performance varying depending on room acoustics.
+              If an automated speech-to-text listener transcribes 10 spoken words in a noisy room, how many does it get right?
+            </p>
+            <p class="metric-desc" style="margin-top: -6px;">
+              In loud music where an unassisted microphone only caught 2 or 3 words out of 10, our adaptive pipeline helped recover several more words so sentences could actually be understood. Performance varies in practice as sound bounces off walls.
             </p>
           </div>
         </div>
@@ -331,12 +406,12 @@
 
           <div class="hardware-specs-grid">
             <div class="spec-item">
-              <span class="spec-name">Processing Delay</span>
-              <span class="spec-val">&lt; 0.15 ms</span>
+              <span class="spec-name">Expected Delay</span>
+              <span class="spec-val">~10–20 ms</span>
             </div>
             <div class="spec-item">
               <span class="spec-name">Perceptual Lag</span>
-              <span class="spec-val">Zero Echo</span>
+              <span class="spec-val">Conversational</span>
             </div>
             <div class="spec-item">
               <span class="spec-name">Sampling Rate</span>
@@ -350,7 +425,7 @@
         </div>
 
         <p style="font-size: 0.92rem; color: var(--text-faint);">
-          * For comparison: Human hearing only notices an echo if audio is delayed by more than 10 to 20 milliseconds. At less than 0.15 ms, our filter is imperceptibly fast.
+          * For live conversational audio or hearing assistance, total end-to-end delay generally needs to stay below 20 to 30 milliseconds to prevent a distracting echo. Our embedded pipeline is designed to operate comfortably within this 10 to 20 ms window in real time.
         </p>
       </div>
     </section>

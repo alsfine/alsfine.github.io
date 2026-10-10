@@ -390,47 +390,108 @@ strong {
   background-color: var(--color-teal);
 }
 
-/* 3-Step High Level Solution Box */
-.step-list {
+/* 3-Step High Level Solution Flowchart with Arrows */
+.architecture-flow {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  margin: 18px 0;
+  margin: 20px 0;
 }
 
-.step-item {
-  display: flex;
-  gap: 14px;
+.flow-node {
   background-color: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   padding: 16px;
   box-shadow: var(--shadow-sm);
+  position: relative;
 }
 
-.step-num {
-  width: 32px;
-  height: 32px;
-  flex-shrink: 0;
+.flow-node.input-node {
+  border-left: 4px solid var(--color-primary);
+  background: var(--bg-surface);
+}
+
+.flow-node.stage-node {
+  border-left: 4px solid var(--color-teal);
+}
+
+.flow-node.guard-node {
+  border-left: 4px solid var(--color-amber);
+  background: var(--bg-surface);
+}
+
+.flow-node.output-node {
+  border-left: 4px solid var(--color-primary);
+  background: var(--color-primary-light);
+  border: 1px solid var(--color-primary-border);
+}
+
+.flow-node-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.flow-step-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
   border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 800;
   background-color: var(--color-primary-light);
   color: var(--color-primary);
   border: 1px solid var(--color-primary-border);
+  flex-shrink: 0;
+}
+
+.flow-node h4 {
+  font-size: 1.05rem;
+  margin-bottom: 0;
+}
+
+.flow-node p {
+  font-size: 0.93rem;
+  line-height: 1.55;
+  margin-bottom: 0;
+  color: var(--text-muted);
+}
+
+/* Connecting Arrow Strips */
+.flow-connector {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-weight: 800;
-  font-size: 0.9rem;
+  padding: 6px 0;
 }
 
-.step-content h4 {
-  font-size: 1.05rem;
-  margin-bottom: 4px;
+.flow-arrow-line {
+  width: 2px;
+  height: 12px;
+  background-color: var(--border-highlight);
 }
 
-.step-content p {
-  font-size: 0.95rem;
-  margin-bottom: 0;
+.flow-arrow-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--text-faint);
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  padding: 2px 8px;
+}
+
+.flow-arrow-icon {
+  font-size: 0.85rem;
+  color: var(--color-teal);
+  font-weight: 900;
 }
 
 /* ==========================================================================
@@ -491,6 +552,45 @@ strong {
   box-shadow: var(--shadow-sm);
 }
 
+/* Slider Signal Legend */
+.signal-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+}
+
+.legend-swatch {
+  width: 16px;
+  height: 4px;
+  border-radius: var(--radius-full);
+}
+
+.legend-swatch.noisy {
+  background-color: #f43f5e;
+}
+
+.legend-swatch.enhanced {
+  background-color: #0d9488;
+}
+
+.legend-swatch.reference {
+  background-color: #d97706;
+  border-top: 2px dashed #d97706;
+  height: 0px;
+}
+
 /* Touch Comparison Slider */
 .slider-stage {
   position: relative;
@@ -529,8 +629,16 @@ strong {
   height: 100%;
   width: 50%; /* Controlled by JS */
   overflow: hidden;
-  background-color: var(--bg-surface);
+  background-color: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
   border-right: 2px solid var(--color-primary);
+}
+
+@media (prefers-color-scheme: dark) {
+  .slider-layer.after {
+    background-color: rgba(17, 24, 39, 0.88);
+  }
 }
 
 /* Canvas Signal Representations */
