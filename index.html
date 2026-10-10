@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <meta name="description" content="An engineering investigation into real-time speech enhancement in loud musical environments by Ryan Jammy and Raphael Alsfine at the University of the Witwatersrand.">
+  <title>ClearVoice | Real-Time Speech Enhancement in Loud Music</title>
+  
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Sticky Top Header -->
+  <header class="site-header">
+    <div class="container topbar-content">
+      <div class="uni-badge">
+        <span class="uni-dot"></span>
+        <span>Wits University &bull; School of EIE</span>
+      </div>
+      <span class="open-day-pill">Open Day Demo</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero / Introduction -->
+    <section class="hero-section">
+      <div class="container">
+        <span class="project-tag">Final Year Investigation</span>
+        <h1 class="hero-title">Understanding Speech When Music Is Blasting</h1>
+        <p class="hero-lead">
+          Have you ever tried answering a phone call or speaking to someone in a loud restaurant, at a wedding, or near a concert stage with thumping bass? Our investigation explores how to filter out overwhelming background music so human voices stay natural and intelligible.
+        </p>
+
+        <div class="author-strip">
+          <span>Student Researchers:</span> Ryan Jammy &amp; Raphael Alsfine
+        </div>
+
+        <!-- 3 Quick Highlight Badges -->
+        <div class="highlights-grid">
+          <div class="highlight-card">
+            <span class="highlight-icon">🎙️</span>
+            <div>
+              <span class="highlight-label">Approach</span>
+              <span class="highlight-val">Dual Microphones</span>
+            </div>
+          </div>
+          <div class="highlight-card">
+            <span class="highlight-icon">⚡</span>
+            <div>
+              <span class="highlight-label">Processing Delay</span>
+              <span class="highlight-val">&lt; 0.15 ms (Zero Echo)</span>
+            </div>
+          </div>
+          <div class="highlight-card">
+            <span class="highlight-icon">🔬</span>
+            <div>
+              <span class="highlight-label">Demonstration</span>
+              <span class="highlight-val">Live Microchip</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 1: The Problem -->
+    <section class="section" id="problem">
+      <div class="container">
+        <span class="section-label">The Challenge</span>
+        <h2 class="section-title">Why Is It So Hard to Hear Over Music?</h2>
+        
+        <p>
+          Unlike steady background hum like rain or an air conditioner, music is dynamic, loud, and constantly shifting. More importantly, <strong>music bass drums, basslines, and synthesizers vibrate at the exact same pitch range as human vocal cords</strong>.
+        </p>
+        
+        <div class="story-card info">
+          <h3 class="card-heading">The Ear's Reaction: Acoustic Masking</h3>
+          <p>
+            When loud, booming low-frequency sounds enter the human ear, they trigger an auditory effect known as <em>acoustic masking</em>. The deep bass literally overpowers and drowns out the delicate, higher-pitched sounds of speech consonants (like "s", "t", and "p") that are essential for understanding words.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: Why Conventional Filters Fall Short -->
+    <section class="section" id="conventional-approach">
+      <div class="container">
+        <span class="section-label">The Traditional Trade-Off</span>
+        <h2 class="section-title">The "Tin Can" Trap</h2>
+        
+        <p>
+          Standard communication headsets and basic noise filters try to solve this by simply cutting off all sounds below <strong>300 Hz</strong>. While this does eliminate deep bass, it creates an unfortunate side effect.
+        </p>
+
+        <div class="story-card warn">
+          <h3 class="card-heading">What Gets Lost in the Cut?</h3>
+          <p>
+            A person's natural speaking pitch fundamental sits well below 300 Hz (around <strong>125 Hz</strong> for typical male voices and <strong>218 Hz</strong> for typical female voices).
+          </p>
+
+          <div class="comparison-visual-box">
+            <div class="visual-row">
+              <div class="visual-row-header">
+                <span>Traditional 300 Hz Cut (Natural Voice Retained)</span>
+                <strong>~75% to 84%</strong>
+              </div>
+              <div class="visual-meter">
+                <div class="meter-fill bad" data-width="78%" style="width: 0%;"></div>
+              </div>
+              <p style="font-size: 0.82rem; color: var(--text-faint); margin-top: 4px;">
+                Strips up to 26% of vocal warmth, leaving voices sounding thin, metallic, and robotic.
+              </p>
+            </div>
+
+            <div class="visual-row">
+              <div class="visual-row-header">
+                <span>Our Genre-Informed Baseline (Natural Voice Retained)</span>
+                <strong>~98.6%</strong>
+              </div>
+              <div class="visual-meter">
+                <div class="meter-fill good" data-width="98.6%" style="width: 0%;"></div>
+              </div>
+              <p style="font-size: 0.82rem; color: var(--text-faint); margin-top: 4px;">
+                Leaves the broad voice band open while specifically targeting the music's bass resonance points.
+              </p>
+            </div>
+          </div>
+
+          <p>
+            When standard filters amputate that low pitch energy, the person ends up sounding like a thin robot speaking through an empty tin can, and speech recognizers still struggle to make out what was said.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Our Solution -->
+    <section class="section" id="solution">
+      <div class="container">
+        <span class="section-label">Our Architecture</span>
+        <h2 class="section-title">A Two-Stage Hybrid Approach</h2>
+        
+        <p>
+          Instead of relying on a single blunt filter, our system couples a genre-informed baseline filter with an adaptive noise-canceling algorithm.
+        </p>
+
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <h4>Genre-Informed Baseline Filter</h4>
+              <p>
+                Only these static filters are genre-informed. We analyzed 150 music tracks and found that different genres place their booming bass in distinct, predictable spots (e.g. Techno sub-bass vs. Rock kick-drum punch). This stage gently suppresses those specific resonance areas without gutting the speaker's vocal range.
+              </p>
+            </div>
+          </div>
+
+          <div class="step-item">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <h4>Adaptive Room Tracking (NLMS)</h4>
+              <p>
+                A secondary reference microphone listens to the background music in the room. An adaptive algorithm (Normalized Least Mean Squares) calculates how the sound bounces off the walls and continuously subtracts that noise from the voice microphone in real time.
+              </p>
+            </div>
+          </div>
+
+          <div class="step-item">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <h4>Smart Voice Protection (VAD)</h4>
+              <p>
+                Adaptive algorithms can accidentally cancel your voice if your speech leaks into the room microphone. A built-in voice activity detector pauses adaptation whenever you speak, protecting your voice from self-cancellation.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Interactive Visual Aid -->
+    <section class="section" id="interactive-demo">
+      <div class="container">
+        <span class="section-label">Interactive Visual Aid</span>
+        <h2 class="section-title">See the Sound Being Cleaned</h2>
+        
+        <p>
+          Use the interactive slider below to see how our pipeline isolates speech from loud background music waves without needing to blast audio from your phone.
+        </p>
+
+        <div class="interactive-container">
+          <div class="interactive-header">
+            <h3 class="interactive-title">Select a Music Style</h3>
+            <p class="interactive-hint">Tap a genre, then drag the slider left and right to inspect the signal</p>
+          </div>
+
+          <!-- Genre Selector Tabs -->
+          <div class="genre-tabs">
+            <button type="button" class="genre-tab-btn active" data-genre="techno">Techno</button>
+            <button type="button" class="genre-tab-btn" data-genre="rock">Rock</button>
+            <button type="button" class="genre-tab-btn" data-genre="jazz">Jazz</button>
+          </div>
+
+          <!-- Touch Slider Stage -->
+          <div class="slider-stage" id="sliderStage">
+            <!-- Before Layer (Full Width Underlying) -->
+            <div class="slider-layer before">
+              <span class="slider-pill-badge before-badge">Before: Noisy Input</span>
+              <canvas id="canvasBefore" class="wave-canvas"></canvas>
+            </div>
+
+            <!-- After Layer (Clipped Width On Top) -->
+            <div class="slider-layer after" id="sliderAfterLayer">
+              <span class="slider-pill-badge after-badge">After: Enhanced</span>
+              <canvas id="canvasAfter" class="wave-canvas"></canvas>
+            </div>
+
+            <!-- Draggable Handle Divider -->
+            <div class="slider-handle-line" id="sliderHandleLine"></div>
+            <div class="slider-handle-button" id="sliderHandleButton" aria-label="Drag to compare before and after">
+              <span class="slider-handle-arrows">&lsaquo;&rsaquo;</span>
+            </div>
+          </div>
+
+          <p class="slider-caption">
+            &larr; Drag handle to reveal cleaned speech waveform &rarr;
+          </p>
+
+          <!-- Dynamic Genre Details Card -->
+          <div class="genre-info-box">
+            <strong>Dominant Bass Focus:</strong> <span id="genreFreqBadge">62.5 Hz &amp; 125 Hz</span><br>
+            <span id="genreDescText" style="color: var(--text-muted);">
+              Concentrates 85% of its bass energy into rigid, repeating sub-bass kick pulses.
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5: Objective Evaluation & Findings -->
+    <section class="section" id="findings">
+      <div class="container">
+        <span class="section-label">Empirical Evaluation</span>
+        <h2 class="section-title">What the Measurements Showed</h2>
+        
+        <p>
+          To keep our findings objective, we measured our system using standardized engineering metrics rather than subjective listening impressions.
+        </p>
+
+        <div class="metric-card-group">
+          <!-- STOI Metric Card -->
+          <div class="metric-box">
+            <div class="metric-header">
+              <span class="metric-title">Speech Clarity Score (STOI)</span>
+              <span class="metric-score-tag">International Standard</span>
+            </div>
+            <p class="metric-desc">
+              STOI is a score from <strong>0.0 to 1.0</strong> that predicts how clearly human listeners can distinguish individual speech sounds. Unlike raw volume reduction, it specifically penalizes distortion of subtle consonant cues.
+            </p>
+
+            <div class="score-bars">
+              <div class="score-bar-row">
+                <div class="score-label-row">
+                  <span class="score-label-name">Severe Noise (-15 dB SNR)</span>
+                  <span>Clarity Gain: +0.06</span>
+                </div>
+                <div class="score-track">
+                  <div class="score-fill enhanced" data-width="61%" style="width: 0%;"></div>
+                </div>
+                <span style="font-size: 0.78rem; color: var(--text-faint);">
+                  Raw: ~0.50 &rarr; Enhanced: ~0.61 (Modest, noticeable improvement in heavy noise)
+                </span>
+              </div>
+
+              <div class="score-bar-row">
+                <div class="score-label-row">
+                  <span class="score-label-name">Mild Noise (0 dB SNR)</span>
+                  <span>Clarity Gain: Marginal</span>
+                </div>
+                <div class="score-track">
+                  <div class="score-fill unprocessed" data-width="76%" style="width: 0%;"></div>
+                </div>
+                <span style="font-size: 0.78rem; color: var(--text-faint);">
+                  Raw: ~0.75 &rarr; Enhanced: ~0.76 (Speech is already clear; filtering provides minimal benefit)
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- WRS Metric Card -->
+          <div class="metric-box">
+            <div class="metric-header">
+              <span class="metric-title">Word Recognition (WRS)</span>
+              <span class="metric-score-tag">Speech-to-Text Test</span>
+            </div>
+            <p class="metric-desc">
+              We tested automated speech-to-text models on standardized test sentences. In severe noise where raw audio failed to detect words, our adaptive pipeline helped recover understandable words, with performance varying depending on room acoustics.
+            </p>
+          </div>
+        </div>
+
+        <!-- Honest Discussion Box -->
+        <div class="tradeoff-box">
+          <div class="tradeoff-title">
+            <span>⚖️</span>
+            <strong>Honest Engineering Trade-Offs</strong>
+          </div>
+          <p>
+            Our results are modest and reflect real-world acoustics. While the system demonstrates clear gains in heavy noise, in quiet or mild conditions filtering can introduce slight artifacts.
+          </p>
+          <p>
+            Additionally, if the speaker's mouth is too close to the secondary room microphone, small amounts of speech leakage can slightly limit maximum noise cancellation.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 6: Hardware Demonstration -->
+    <section class="section" id="hardware">
+      <div class="container">
+        <span class="section-label">Hardware Implementation</span>
+        <h2 class="section-title">Running Live on a Low-Power Microchip</h2>
+        
+        <p>
+          This project was not built merely as a simulation on an expensive computer. It runs live in real time on the <strong>ESP32-S3 microcontroller</strong> sitting on our demonstration table.
+        </p>
+
+        <div class="hardware-box">
+          <h3 class="card-heading" style="margin-bottom: 6px;">Microcontroller Performance</h3>
+          <p style="font-size: 0.95rem; color: var(--text-muted);">
+            The algorithm executes efficiently within the chip's dual-core processor, leaving ample headroom for other embedded tasks.
+          </p>
+
+          <div class="hardware-specs-grid">
+            <div class="spec-item">
+              <span class="spec-name">Processing Delay</span>
+              <span class="spec-val">&lt; 0.15 ms</span>
+            </div>
+            <div class="spec-item">
+              <span class="spec-name">Perceptual Lag</span>
+              <span class="spec-val">Zero Echo</span>
+            </div>
+            <div class="spec-item">
+              <span class="spec-name">Sampling Rate</span>
+              <span class="spec-val">16,000 Hz</span>
+            </div>
+            <div class="spec-item">
+              <span class="spec-name">Target Chip</span>
+              <span class="spec-val">ESP32-S3</span>
+            </div>
+          </div>
+        </div>
+
+        <p style="font-size: 0.92rem; color: var(--text-faint);">
+          * For comparison: Human hearing only notices an echo if audio is delayed by more than 10 to 20 milliseconds. At less than 0.15 ms, our filter is imperceptibly fast.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-uni">University of the Witwatersrand</div>
+      <div class="footer-dept">School of Electrical &amp; Information Engineering &bull; Johannesburg</div>
+      <div class="footer-authors">
+        Final Year Investigation by <strong>Ryan Jammy</strong> &amp; <strong>Raphael Alsfine</strong>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/visual-slider.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
