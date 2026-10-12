@@ -28,9 +28,9 @@ const MQTT_CONFIG = {
 const twinState = {
   isHardwareConnected: false,
   lastTelemetryTime: 0,
-  currentPipeline: 'OPTIMAL',
-  currentFilter: 'TECHNO',
-  audioLevel: 15,
+  currentPipeline: null,     // null when hardware is offline — no configuration shown
+  currentFilter: null,       // null when hardware is offline — no configuration shown
+  audioLevel: 0,
   isAudioPresent: false,
   isVadActive: false,
   isGameEnabled: true,       // Can be locked remotely by presenters via hotkey
@@ -201,14 +201,88 @@ function startCooldown(seconds, storeStorage = true) {
 /**
  * 2. Digital Twin UI — Strictly Read-Only Hardware Telemetry Display
  * Users on the website cannot configure or modify hardware DSP settings.
+ * When hardware is offline, no configuration is active and LIVE badges are cleared.
  */
 function initDigitalTwinUI() {
-  // Ensure default UI state reflects initial baseline
-  setPipelineUI(twinState.currentPipeline);
-  setFilterUI(twinState.currentFilter);
+  // Start strictly in offline state — no configuration or LIVE badges shown
+  setHardwareOfflineUI();
+}
+
+function setHardwareOfflineUI() {
+  twinState.isHardwareConnected = false;
+  twinState.currentPipeline = null;
+  twinState.currentFilter = null;
+
+  // 1. Connection Header Status Pill
+  updateConnectionStatus(false, 'Hardware Offline (Awaiting Telemetry)');
+
+  // 2. Mark cards as offline
+  const pipelineCard = document.getElementById('pipelineCard');
+  const filterCard = document.getElementById('filterCard');
+  const meterCard = document.getElementById('meterCard');
+  if (pipelineCard) pipelineCard.classList.add('is-offline');
+  if (filterCard) filterCard.classList.add('is-offline');
+  if (meterCard) meterCard.classList.add('is-offline');
+
+  // 3. Update state badges to Offline
+  const pipelineBadge = document.getElementById('pipelineStateBadge');
+  if (pipelineBadge) {
+    pipelineBadge.className = 'twin-state-badge offline';
+    pipelineBadge.textContent = 'Offline';
+  }
+  const filterBadge = document.getElementById('filterStateBadge');
+  if (filterBadge) {
+    filterBadge.className = 'twin-state-badge offline';
+    filterBadge.textContent = 'Offline';
+  }
+  const vadBadge = document.getElementById('vadStatusBadge');
+  if (vadBadge) {
+    vadBadge.className = 'vad-status-badge offline';
+    vadBadge.textContent = 'Offline';
+  }
+
+  // 4. Remove active status from all pills — NO pipeline or filter is shown as active or live
+  document.querySelectorAll('#pipelineGroup .twin-pill').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('#filterGroup .twin-pill').forEach(p => p.classList.remove('active'));
+
+  // 5. Reset VU meter to 0%
+  updateVuMeter(0);
+}
+
+function setHardwareLiveUI() {
+  twinState.isHardwareConnected = true;
+
+  // 1. Remove offline class from cards
+  const pipelineCard = document.getElementById('pipelineCard');
+  const filterCard = document.getElementById('filterCard');
+  const meterCard = document.getElementById('meterCard');
+  if (pipelineCard) pipelineCard.classList.remove('is-offline');
+  if (filterCard) filterCard.classList.remove('is-offline');
+  if (meterCard) meterCard.classList.remove('is-offline');
+
+  // 2. Update badges to Live
+  const pipelineBadge = document.getElementById('pipelineStateBadge');
+  if (pipelineBadge) {
+    pipelineBadge.className = 'twin-state-badge live';
+    pipelineBadge.textContent = 'Live';
+  }
+  const filterBadge = document.getElementById('filterStateBadge');
+  if (filterBadge) {
+    filterBadge.className = 'twin-state-badge live';
+    filterBadge.textContent = 'Live';
+  }
+  const vadBadge = document.getElementById('vadStatusBadge');
+  if (vadBadge) {
+    vadBadge.className = 'vad-status-badge';
+    vadBadge.textContent = 'VAD: Tracking';
+  }
 }
 
 function setPipelineUI(pipeline) {
+  if (!twinState.isHardwareConnected || !pipeline) {
+    document.querySelectorAll('#pipelineGroup .twin-pill').forEach(p => p.classList.remove('active'));
+    return;
+  }
   twinState.currentPipeline = pipeline;
   const pills = document.querySelectorAll('#pipelineGroup .twin-pill');
   pills.forEach(p => {
@@ -221,6 +295,10 @@ function setPipelineUI(pipeline) {
 }
 
 function setFilterUI(filter) {
+  if (!twinState.isHardwareConnected || !filter) {
+    document.querySelectorAll('#filterGroup .twin-pill').forEach(p => p.classList.remove('active'));
+    return;
+  }
   twinState.currentFilter = filter;
   const pills = document.querySelectorAll('#filterGroup .twin-pill');
   pills.forEach(p => {
@@ -235,7 +313,11 @@ function setFilterUI(filter) {
 function updateVuMeter(level) {
   const fill = document.getElementById('vuMeterFill');
   if (fill) {
-    const clamped = Math.max(4, Math.min(100, level));
+    if (!twinState.isHardwareConnected && level === 0) {
+      fill.style.width = '0%';
+      return;
+    }
+    const clamped = Math.max(0, Math.min(100, level));
     fill.style.width = clamped + '%';
     if (clamped > 65) {
       fill.style.background = 'linear-gradient(90deg, #0d9488, #f59e0b, #f43f5e)';
@@ -250,12 +332,17 @@ function updateVuMeter(level) {
 function updateVadDisplay(isActive, text) {
   const badge = document.getElementById('vadStatusBadge');
   if (!badge) return;
+  if (!twinState.isHardwareConnected && !isActive) {
+    badge.className = 'vad-status-badge offline';
+    badge.textContent = 'Offline';
+    return;
+  }
   if (isActive) {
-    badge.classList.add('active');
+    badge.className = 'vad-status-badge active';
     badge.textContent = text || 'VAD: Voice Protected';
   } else {
-    badge.classList.remove('active');
-    badge.textContent = text || 'VAD: Idle';
+    badge.className = 'vad-status-badge';
+    badge.textContent = text || 'VAD: Tracking';
   }
 }
 
@@ -273,8 +360,13 @@ function simulateSpeechVuPulse(durationMs) {
     if (elapsed > durationMs) {
       clearInterval(vuPulseInterval);
       vuPulseInterval = null;
-      updateVuMeter(12);
-      updateVadDisplay(false, 'VAD: Idle');
+      if (!twinState.isHardwareConnected) {
+        updateVuMeter(0);
+        updateVadDisplay(false);
+      } else {
+        updateVuMeter(12);
+        updateVadDisplay(false, 'VAD: Tracking');
+      }
     } else {
       // Natural oscillating speech energy between 45% and 88%
       const val = 50 + Math.sin(elapsed * 0.02) * 25 + Math.random() * 15;
@@ -289,6 +381,7 @@ function simulateSpeechVuPulse(durationMs) {
 function initMqttClient() {
   if (typeof Paho === 'undefined') {
     console.warn('Paho MQTT library not loaded; running in Standby mode.');
+    setHardwareOfflineUI();
     updateConnectionStatus(false, 'Standby Mode (Broker Offline)');
     return;
   }
@@ -298,7 +391,8 @@ function initMqttClient() {
 
   client.onConnectionLost = (responseObject) => {
     console.warn('MQTT Connection lost:', responseObject.errorMessage);
-    updateConnectionStatus(false, 'Standby (Reconnecting...)');
+    setHardwareOfflineUI();
+    updateConnectionStatus(false, 'MQTT Disconnected (Reconnecting...)');
     setTimeout(initMqttClient, 5000);
   };
 
@@ -317,11 +411,13 @@ function initMqttClient() {
     onSuccess: () => {
       twinState.mqttClient = client;
       client.subscribe(MQTT_CONFIG.topicTelemetry);
-      updateConnectionStatus(false, 'MQTT Connected (Awaiting Hardware...)');
+      setHardwareOfflineUI();
+      updateConnectionStatus(false, 'MQTT Connected (Awaiting Telemetry...)');
     },
     onFailure: (err) => {
       console.warn('MQTT connection failed:', err);
-      updateConnectionStatus(false, 'Standby Mode (Standalone)');
+      setHardwareOfflineUI();
+      updateConnectionStatus(false, 'Hardware Offline (Broker Unreachable)');
     }
   };
 
@@ -329,7 +425,8 @@ function initMqttClient() {
     client.connect(connectOptions);
   } catch (err) {
     console.warn('MQTT connect error:', err);
-    updateConnectionStatus(false, 'Standby Mode (Standalone)');
+    setHardwareOfflineUI();
+    updateConnectionStatus(false, 'Hardware Offline (Broker Unreachable)');
   }
 }
 
@@ -338,7 +435,11 @@ function initMqttClient() {
  */
 function handleIncomingTelemetry(data) {
   twinState.lastTelemetryTime = Date.now();
-  twinState.isHardwareConnected = true;
+  const wasOffline = !twinState.isHardwareConnected;
+
+  if (wasOffline) {
+    setHardwareLiveUI();
+  }
 
   updateConnectionStatus(true, '🟢 LIVE HARDWARE (ESP32-S3 Stream)');
 
@@ -408,22 +509,21 @@ function updateConnectionStatus(isLive, labelText) {
       dot.className = 'status-indicator-dot online';
     } else {
       pill.classList.remove('live');
-      dot.className = 'status-indicator-dot simulator';
+      dot.className = 'status-indicator-dot offline';
     }
   }
 }
 
 /**
- * Watchdog: Toggles status back to Standby if no telemetry arrives for 4s
+ * Watchdog: Toggles status back to Offline if no telemetry arrives for 4s
  */
 function startHardwareWatchdog() {
   setInterval(() => {
     if (twinState.isHardwareConnected) {
       const elapsed = Date.now() - twinState.lastTelemetryTime;
       if (elapsed > 4000) {
-        twinState.isHardwareConnected = false;
-        updateConnectionStatus(false, '🟡 STANDBY (Awaiting Demo Telemetry)');
+        setHardwareOfflineUI();
       }
     }
-  }, 2000);
+  }, 1000);
 }

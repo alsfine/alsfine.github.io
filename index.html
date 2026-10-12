@@ -80,47 +80,62 @@
               <h3 class="twin-title">ESP32-S3 Live State</h3>
             </div>
             <div class="twin-connection-status" id="twinConnectionPill">
-              <span class="status-indicator-dot simulator" id="twinStatusDot"></span>
-              <span id="twinStatusText">Connecting to MQTT...</span>
+              <span class="status-indicator-dot offline" id="twinStatusDot"></span>
+              <span id="twinStatusText">Hardware Offline (Awaiting Telemetry)</span>
             </div>
           </div>
 
           <div class="twin-grid">
             <!-- Active DSP Pipeline Card -->
-            <div class="twin-card">
-              <span class="twin-card-label">Active DSP Pipeline (Live Telemetry)</span>
+            <div class="twin-card is-offline" id="pipelineCard">
+              <div class="twin-card-header-row">
+                <span class="twin-card-label">Active DSP Pipeline</span>
+                <span class="twin-state-badge offline" id="pipelineStateBadge">Offline</span>
+              </div>
               <div class="twin-pill-group" id="pipelineGroup">
                 <span class="twin-pill" data-pipeline="PASSTHROUGH">Passthrough (Raw)</span>
                 <span class="twin-pill" data-pipeline="CONTROL">Control (FIR)</span>
                 <span class="twin-pill" data-pipeline="MIXED">Mixed (Notch)</span>
-                <span class="twin-pill active" data-pipeline="OPTIMAL">Optimal (Adaptive)</span>
+                <span class="twin-pill" data-pipeline="OPTIMAL">Optimal (Adaptive)</span>
+              </div>
+              <div class="twin-offline-hint" id="pipelineOfflineHint">
+                ⚠️ Hardware offline — no active configuration
               </div>
             </div>
 
             <!-- Active Noise Filter Card -->
-            <div class="twin-card">
-              <span class="twin-card-label">Active Genre Baseline (Live Telemetry)</span>
+            <div class="twin-card is-offline" id="filterCard">
+              <div class="twin-card-header-row">
+                <span class="twin-card-label">Active Genre Baseline</span>
+                <span class="twin-state-badge offline" id="filterStateBadge">Offline</span>
+              </div>
               <div class="twin-pill-group" id="filterGroup">
                 <span class="twin-pill" data-filter="NONE">None</span>
-                <span class="twin-pill active" data-filter="TECHNO">Techno</span>
+                <span class="twin-pill" data-filter="TECHNO">Techno</span>
                 <span class="twin-pill" data-filter="ROCK">Rock</span>
                 <span class="twin-pill" data-filter="JAZZ">Jazz</span>
+              </div>
+              <div class="twin-offline-hint" id="filterOfflineHint">
+                ⚠️ Hardware offline — no active configuration
               </div>
             </div>
 
             <!-- Audio Energy VU Meter & VAD -->
-            <div class="twin-card meter-card">
+            <div class="twin-card meter-card is-offline" id="meterCard">
               <div class="twin-meter-header">
                 <span class="twin-card-label">Microphone Audio Energy</span>
-                <span class="vad-status-badge" id="vadStatusBadge">VAD: Idle</span>
+                <span class="vad-status-badge offline" id="vadStatusBadge">Offline</span>
               </div>
               <div class="vu-meter-bar">
-                <div class="vu-meter-fill" id="vuMeterFill" style="width: 15%;"></div>
+                <div class="vu-meter-fill" id="vuMeterFill" style="width: 0%;"></div>
               </div>
               <div class="vu-scale">
                 <span>Quiet Room</span>
                 <span>Spoken Voice</span>
                 <span>Loud Music Drop</span>
+              </div>
+              <div class="twin-offline-hint" id="meterOfflineHint">
+                ⚠️ Mic signal offline — waiting for hardware
               </div>
             </div>
           </div>
