@@ -154,115 +154,135 @@
 
           <!-- Responsive SVG Vector Illustration -->
           <div class="setup-svg-container">
-            <svg viewBox="0 0 540 280" width="100%" height="auto" class="headset-setup-svg" xmlns="http://www.w3.org/2000/svg">
+            <svg viewBox="0 0 560 300" width="100%" height="auto" class="headset-setup-svg" xmlns="http://www.w3.org/2000/svg">
               <defs>
-                <linearGradient id="partnerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#cbd5e1" stop-opacity="0.5" />
-                  <stop offset="100%" stop-color="#94a3b8" stop-opacity="0.25" />
+                <linearGradient id="partnerAvatarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#0d9488" />
+                  <stop offset="100%" stop-color="#0f766e" />
                 </linearGradient>
-                <linearGradient id="wearerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#94a3b8" stop-opacity="0.45" />
-                  <stop offset="100%" stop-color="#64748b" stop-opacity="0.2" />
+                <linearGradient id="wearerAvatarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#334155" />
+                  <stop offset="100%" stop-color="#1e293b" />
+                </linearGradient>
+                <linearGradient id="headSkinGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#cbd5e1" stop-opacity="0.35" />
+                  <stop offset="100%" stop-color="#94a3b8" stop-opacity="0.15" />
                 </linearGradient>
                 <linearGradient id="cupGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stop-color="#1e293b" />
-                  <stop offset="100%" stop-color="#334155" />
+                  <stop offset="100%" stop-color="#0f172a" />
                 </linearGradient>
                 <radialGradient id="micPulseTeal" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stop-color="#0d9488" stop-opacity="0.85" />
+                  <stop offset="0%" stop-color="#0d9488" stop-opacity="0.9" />
+                  <stop offset="60%" stop-color="#14b8a6" stop-opacity="0.4" />
                   <stop offset="100%" stop-color="#0d9488" stop-opacity="0" />
                 </radialGradient>
                 <radialGradient id="micPulseBlue" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stop-color="#2563eb" stop-opacity="0.85" />
+                  <stop offset="0%" stop-color="#2563eb" stop-opacity="0.9" />
+                  <stop offset="60%" stop-color="#3b82f6" stop-opacity="0.4" />
                   <stop offset="100%" stop-color="#2563eb" stop-opacity="0" />
                 </radialGradient>
+                <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="3" result="blur" />
+                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
               </defs>
 
+              <!-- Subtle Technical Background Grid Accent -->
+              <rect x="0" y="0" width="560" height="300" rx="12" fill="#f8fafc" />
+              <line x1="20" y1="140" x2="540" y2="140" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,6" opacity="0.6" />
+
               <!-- Ambient Music Waves from Room (Top-Right PA Loudspeaker) -->
-              <g class="room-sound-waves" opacity="0.65">
-                <rect x="460" y="24" width="24" height="36" rx="4" fill="#64748b" />
-                <polygon points="484,24 510,12 510,72 484,60" fill="#64748b" />
-                <circle cx="472" cy="35" r="4" fill="#94a3b8" />
-                <circle cx="472" cy="48" r="5" fill="#94a3b8" />
-                <text x="475" y="14" font-size="10.5" font-weight="700" fill="#64748b" text-anchor="middle">Venue Music (PA)</text>
+              <g class="room-sound-waves" opacity="0.75">
+                <rect x="475" y="32" width="28" height="42" rx="5" fill="#334155" stroke="#1e293b" stroke-width="1.5" />
+                <polygon points="503,32 528,18 528,88 503,74" fill="#334155" stroke="#1e293b" stroke-width="1.5" />
+                <circle cx="489" cy="45" r="5" fill="#64748b" />
+                <circle cx="489" cy="61" r="6.5" fill="#64748b" />
+                <text x="490" y="22" font-size="10.5" font-weight="800" fill="#475569" text-anchor="middle">Venue Music (PA)</text>
                 
-                <path d="M 445,30 A 70,70 0 0,0 445,70" fill="none" stroke="#f43f5e" stroke-width="2.5" stroke-linecap="round" />
-                <path d="M 415,18 A 105,105 0 0,0 415,84" fill="none" stroke="#f43f5e" stroke-width="2.0" stroke-linecap="round" stroke-dasharray="4,3" />
-                <path d="M 375,8 A 155,155 0 0,0 375,104" fill="none" stroke="#f43f5e" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="4,4" />
-                <path d="M 330,0 A 210,210 0 0,0 330,126" fill="none" stroke="#f43f5e" stroke-width="1.4" stroke-linecap="round" stroke-dasharray="4,4" />
-                <path d="M 270,0 A 270,270 0 0,0 270,146" fill="none" stroke="#f43f5e" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="3,4" />
+                <path d="M 458,36 A 65,65 0 0,0 458,74" fill="none" stroke="#f43f5e" stroke-width="2.5" stroke-linecap="round" />
+                <path d="M 425,24 A 105,105 0 0,0 425,86" fill="none" stroke="#f43f5e" stroke-width="2.0" stroke-linecap="round" stroke-dasharray="4,3" />
+                <path d="M 380,12 A 160,160 0 0,0 380,102" fill="none" stroke="#f43f5e" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="4,4" />
+                <path d="M 330,4 A 225,225 0 0,0 330,122" fill="none" stroke="#f43f5e" stroke-width="1.3" stroke-linecap="round" stroke-dasharray="4,4" />
+                <path d="M 270,0 A 290,290 0 0,0 270,142" fill="none" stroke="#f43f5e" stroke-width="1.1" stroke-linecap="round" stroke-dasharray="3,4" />
               </g>
 
-              <!-- Speaking Partner (Left Figure Silhouette Profile) -->
+              <!-- Speaking Partner (Left Figure Avatar) -->
               <g class="speaking-partner-group">
-                <!-- Partner Title Pill -->
-                <rect x="30" y="22" width="132" height="24" rx="12" fill="#f0fdfa" stroke="#99f6e4" stroke-width="1.2" />
-                <text x="96" y="38" font-size="10" font-weight="800" fill="#0f766e" text-anchor="middle">SPEAKING PARTNER</text>
+                <!-- Title Pill -->
+                <rect x="25" y="24" width="136" height="25" rx="12.5" fill="#f0fdfa" stroke="#99f6e4" stroke-width="1.2" />
+                <text x="93" y="40.5" font-size="10" font-weight="800" fill="#0f766e" text-anchor="middle">SPEAKING PARTNER</text>
                 
-                <!-- Partner Body & Head Profile Facing Right -->
-                <path d="M 40,240 C 40,210 46,182 60,168 C 55,150 58,126 68,110 C 78,92 98,85 114,88 C 128,91 136,102 140,114 C 142,122 138,128 140,134 C 143,137 152,140 152,144 C 152,148 144,151 144,156 C 146,160 150,162 150,167 C 150,172 141,174 140,179 C 136,189 126,198 112,204 C 104,208 100,218 100,240 Z" 
-                      fill="url(#partnerGrad)" stroke="#94a3b8" stroke-width="1.8" stroke-linejoin="round" />
-                <circle cx="122" cy="116" r="2.5" fill="#64748b" opacity="0.7" />
+                <!-- Modern Circular Tech Avatar -->
+                <circle cx="85" cy="138" r="34" fill="#f0fdfa" stroke="#99f6e4" stroke-width="2" />
+                <circle cx="85" cy="138" r="28" fill="url(#partnerAvatarGrad)" />
+                <!-- Stylized Face Profile / Head Silhouette -->
+                <path d="M 85,120 C 76,120 70,126 70,135 C 70,144 76,148 82,150 L 82,158 C 72,160 62,166 62,174 L 108,174 C 108,166 98,160 88,158 L 88,150 C 94,148 100,144 100,135 C 100,126 94,120 85,120 Z" fill="#ffffff" opacity="0.9" />
                 
-                <!-- Direct Voice Soundwaves from Partner's Mouth Towards Wearer -->
-                <path d="M 156,134 A 14,14 0 0,1 156,156" fill="none" stroke="#0d9488" stroke-width="2.6" stroke-linecap="round" />
-                <path d="M 167,128 A 24,24 0 0,1 167,162" fill="none" stroke="#0d9488" stroke-width="2.2" stroke-linecap="round" />
-                <path d="M 179,122 A 36,36 0 0,1 179,168" fill="none" stroke="#0d9488" stroke-width="2.0" stroke-linecap="round" stroke-dasharray="3,2" />
-                <path d="M 192,116 A 50,50 0 0,1 192,174" fill="none" stroke="#0d9488" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="3,3" />
+                <!-- Radiant Direct Voice Soundwaves towards Wearer -->
+                <path d="M 125,124 A 20,20 0 0,1 125,152" fill="none" stroke="#0d9488" stroke-width="2.8" stroke-linecap="round" />
+                <path d="M 138,116 A 34,34 0 0,1 138,160" fill="none" stroke="#0d9488" stroke-width="2.4" stroke-linecap="round" />
+                <path d="M 152,108 A 48,48 0 0,1 152,168" fill="none" stroke="#14b8a6" stroke-width="2.0" stroke-linecap="round" stroke-dasharray="3,2" />
+                <path d="M 166,102 A 62,62 0 0,1 166,174" fill="none" stroke="#14b8a6" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="3,3" />
+                
+                <!-- Distance indicator -->
+                <text x="145" y="192" font-size="9" font-weight="700" fill="#0f766e" text-anchor="middle">~35 cm away</text>
               </g>
 
-              <!-- Headset Wearer (Center-Right Figure with Mic on Each Side) -->
+              <!-- Headset Wearer (Center-Right Figure with Dual Mic on Ears) -->
               <g class="headset-wearer-group">
-                <!-- Wearer Title Pill -->
-                <rect x="238" y="22" width="124" height="24" rx="12" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1.2" />
-                <text x="300" y="38" font-size="10" font-weight="800" fill="#1e40af" text-anchor="middle">HEADSET WEARER</text>
+                <!-- Title Pill -->
+                <rect x="235" y="24" width="130" height="25" rx="12.5" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1.2" />
+                <text x="300" y="40.5" font-size="10" font-weight="800" fill="#1e40af" text-anchor="middle">HEADSET WEARER</text>
 
-                <!-- Wearer Head & Shoulders (Viewed from Front / Angled) -->
-                <path d="M 235,240 C 235,214 255,200 300,200 C 345,200 365,214 365,240 Z" 
-                      fill="url(#wearerGrad)" stroke="#94a3b8" stroke-width="1.5" />
-                <ellipse cx="300" cy="146" rx="42" ry="52" fill="url(#wearerGrad)" stroke="#94a3b8" stroke-width="2" />
-                <circle cx="286" cy="140" r="2.5" fill="#64748b" opacity="0.6" />
-                <circle cx="314" cy="140" r="2.5" fill="#64748b" opacity="0.6" />
-                <path d="M 297,148 L 300,154 L 303,148" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" />
+                <!-- Wearer Head & Shoulders (Sleek Clean Silhouette) -->
+                <path d="M 235,230 C 235,206 255,192 300,192 C 345,192 365,206 365,230 Z" 
+                      fill="url(#headSkinGrad)" stroke="#94a3b8" stroke-width="1.5" />
+                <ellipse cx="300" cy="138" rx="42" ry="52" fill="url(#headSkinGrad)" stroke="#94a3b8" stroke-width="2" />
+                <circle cx="286" cy="132" r="2.5" fill="#64748b" opacity="0.6" />
+                <circle cx="314" cy="132" r="2.5" fill="#64748b" opacity="0.6" />
+                <path d="M 297,140 L 300,146 L 303,140" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" />
 
                 <!-- Headset Headband Arching Over Top of Head -->
-                <path d="M 256,146 C 256,90 344,90 344,146" fill="none" stroke="#1e293b" stroke-width="5" stroke-linecap="round" />
+                <path d="M 252,138 C 252,80 348,80 348,138" fill="none" stroke="#0f172a" stroke-width="6" stroke-linecap="round" />
+                <path d="M 254,136 C 254,84 346,84 346,136" fill="none" stroke="#64748b" stroke-width="1.5" stroke-linecap="round" />
 
-                <!-- Acoustic Head Shadow Acoustic Shield Indicator -->
-                <g class="head-shadow-tag">
-                  <rect x="256" y="174" width="88" height="18" rx="4" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1" />
-                  <text x="300" y="186.5" font-size="8.2" font-weight="700" fill="#64748b" text-anchor="middle">Head Shield (~12dB)</text>
+                <!-- Acoustic Head Shadow Acoustic Isolation Barrier -->
+                <g class="head-shadow-barrier">
+                  <rect x="274" y="98" width="52" height="80" rx="6" fill="#ffffff" fill-opacity="0.85" stroke="#cbd5e1" stroke-width="1.2" stroke-dasharray="3,3" />
+                  <rect x="254" y="168" width="92" height="19" rx="9.5" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.2" />
+                  <text x="300" y="181" font-size="8.2" font-weight="800" fill="#475569" text-anchor="middle">🛡️ -12 dB Shadow</text>
                 </g>
 
-                <!-- 1. Microphone on Left Ear (Facing Speaking Partner) -->
-                <rect x="248" y="124" width="16" height="44" rx="8" fill="url(#cupGrad)" stroke="#1e293b" stroke-width="1.8" />
-                <circle cx="244" cy="146" r="13" fill="url(#micPulseTeal)" />
-                <circle cx="244" cy="146" r="5" fill="#0d9488" stroke="#ffffff" stroke-width="1.5" />
+                <!-- 1. Left Ear Cup & Microphone Capsule (Facing Partner) -->
+                <rect x="242" y="116" width="18" height="46" rx="9" fill="url(#cupGrad)" stroke="#334155" stroke-width="1.5" />
+                <circle cx="236" cy="138" r="16" fill="url(#micPulseTeal)" />
+                <circle cx="236" cy="138" r="6" fill="#0d9488" stroke="#ffffff" stroke-width="2" />
 
-                <!-- 2. Microphone on Right Ear (Far Side / Opposite Ear) -->
-                <rect x="336" y="124" width="16" height="44" rx="8" fill="url(#cupGrad)" stroke="#1e293b" stroke-width="1.8" />
-                <circle cx="356" cy="146" r="13" fill="url(#micPulseBlue)" />
-                <circle cx="356" cy="146" r="5" fill="#2563eb" stroke="#ffffff" stroke-width="1.5" />
+                <!-- 2. Right Ear Cup & Microphone Capsule (Far Side / Opposite Ear) -->
+                <rect x="340" y="116" width="18" height="46" rx="9" fill="url(#cupGrad)" stroke="#334155" stroke-width="1.5" />
+                <circle cx="362" cy="138" r="16" fill="url(#micPulseBlue)" />
+                <circle cx="362" cy="138" r="6" fill="#2563eb" stroke="#ffffff" stroke-width="2" />
               </g>
 
               <!-- Bottom Callout Badge: Mic on Partner's Side -->
-              <g transform="translate(130, 218)">
-                <rect x="0" y="0" width="168" height="44" rx="8" fill="#f0fdfa" stroke="#99f6e4" stroke-width="1.5" />
-                <circle cx="14" cy="15" r="5" fill="#0d9488" />
-                <text x="26" y="14" font-size="10" font-weight="800" fill="#0f766e">MIC ON PARTNER'S SIDE</text>
-                <text x="26" y="26" font-size="8.8" font-weight="600" fill="#115e59">Partner's Voice (Strong)</text>
-                <text x="26" y="37" font-size="8.2" font-weight="500" fill="#134e4a">+ Ambient Venue Music</text>
-                <path d="M 114,0 L 244,146" fill="none" stroke="#0d9488" stroke-width="1.2" stroke-dasharray="2,2" />
+              <g transform="translate(125, 222)">
+                <rect x="0" y="0" width="170" height="46" rx="9" fill="#f0fdfa" stroke="#99f6e4" stroke-width="1.5" />
+                <circle cx="15" cy="16" r="5" fill="#0d9488" />
+                <text x="27" y="15" font-size="10.5" font-weight="800" fill="#0f766e">MIC 1: PRIMARY (d[n])</text>
+                <text x="27" y="28" font-size="9" font-weight="700" fill="#115e59">Partner's Voice (Strong)</text>
+                <text x="27" y="39" font-size="8.2" font-weight="500" fill="#134e4a">+ Ambient Venue Music</text>
+                <path d="M 110,0 L 236,138" fill="none" stroke="#0d9488" stroke-width="1.3" stroke-dasharray="2,2" />
               </g>
 
               <!-- Bottom Callout Badge: Mic on Opposite Ear -->
-              <g transform="translate(325, 218)">
-                <rect x="0" y="0" width="175" height="44" rx="8" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1.5" />
-                <circle cx="14" cy="15" r="5" fill="#2563eb" />
-                <text x="26" y="14" font-size="10" font-weight="800" fill="#1e40af">MIC ON OPPOSITE EAR</text>
-                <text x="26" y="26" font-size="8.8" font-weight="600" fill="#1e3a8a">Shielded by Wearer's Head</text>
-                <text x="26" y="37" font-size="8.2" font-weight="500" fill="#1e3a8a">Samples Room Music Reference</text>
-                <path d="M 60,0 L 356,146" fill="none" stroke="#2563eb" stroke-width="1.2" stroke-dasharray="2,2" />
+              <g transform="translate(320, 222)">
+                <rect x="0" y="0" width="180" height="46" rx="9" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1.5" />
+                <circle cx="15" cy="16" r="5" fill="#2563eb" />
+                <text x="27" y="15" font-size="10.5" font-weight="800" fill="#1e40af">MIC 2: REFERENCE (x[n])</text>
+                <text x="27" y="28" font-size="9" font-weight="700" fill="#1e3a8a">Shielded by Wearer's Head</text>
+                <text x="27" y="39" font-size="8.2" font-weight="500" fill="#1e3a8a">Samples Room Music Reference</text>
+                <path d="M 70,0 L 362,138" fill="none" stroke="#2563eb" stroke-width="1.3" stroke-dasharray="2,2" />
               </g>
             </svg>
           </div>
@@ -454,7 +474,137 @@
       </div>
     </section>
 
-    <!-- Section 5: Objective Evaluation & Findings -->
+    <!-- Section 5: Mini Digital Twin & Open Day Live Challenge -->
+    <section class="section" id="digital-twin">
+      <div class="container">
+        <span class="section-label">Real-Time Telemetry &amp; Demo</span>
+        <h2 class="section-title">Mini Digital Twin</h2>
+        
+        <p>
+          This dashboard connects directly to the live demonstration running at our booth. When our Python controller changes filters or detects voice on the ESP32, this twin reflects the hardware state in real time over MQTT.
+        </p>
+
+        <!-- Digital Twin Telemetry Dashboard -->
+        <div class="digital-twin-box">
+          <div class="twin-header-bar">
+            <div class="twin-title-wrap">
+              <span class="twin-badge">Hardware Twin</span>
+              <h3 class="twin-title">ESP32-S3 Live State</h3>
+            </div>
+            <div class="twin-connection-status" id="twinConnectionPill">
+              <span class="status-indicator-dot simulator" id="twinStatusDot"></span>
+              <span id="twinStatusText">Connecting to MQTT...</span>
+            </div>
+          </div>
+
+          <div class="twin-grid">
+            <!-- Active DSP Pipeline Card -->
+            <div class="twin-card">
+              <span class="twin-card-label">Active DSP Pipeline</span>
+              <div class="twin-pill-group" id="pipelineGroup">
+                <button type="button" class="twin-pill" data-pipeline="PASSTHROUGH">Passthrough (Raw)</button>
+                <button type="button" class="twin-pill" data-pipeline="CONTROL">Control (FIR)</button>
+                <button type="button" class="twin-pill" data-pipeline="MIXED">Mixed (Notch)</button>
+                <button type="button" class="twin-pill active" data-pipeline="OPTIMAL">Optimal (Adaptive)</button>
+              </div>
+            </div>
+
+            <!-- Active Noise Filter Card -->
+            <div class="twin-card">
+              <span class="twin-card-label">Active Genre Baseline</span>
+              <div class="twin-pill-group" id="filterGroup">
+                <button type="button" class="twin-pill" data-filter="NONE">None</button>
+                <button type="button" class="twin-pill active" data-filter="TECHNO">Techno</button>
+                <button type="button" class="twin-pill" data-filter="ROCK">Rock</button>
+                <button type="button" class="twin-pill" data-filter="JAZZ">Jazz</button>
+              </div>
+            </div>
+
+            <!-- Audio Energy VU Meter & VAD -->
+            <div class="twin-card meter-card">
+              <div class="twin-meter-header">
+                <span class="twin-card-label">Microphone Audio Energy</span>
+                <span class="vad-status-badge" id="vadStatusBadge">VAD: Idle</span>
+              </div>
+              <div class="vu-meter-bar">
+                <div class="vu-meter-fill" id="vuMeterFill" style="width: 15%;"></div>
+              </div>
+              <div class="vu-scale">
+                <span>Quiet Room</span>
+                <span>Spoken Voice</span>
+                <span>Loud Music Drop</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Open Day Live Challenge: Guess the Mystery Sentence -->
+        <div class="game-box" id="booth-game">
+          <div class="game-header-bar">
+            <div>
+              <span class="game-badge">Open Day Booth Game</span>
+              <h3 class="game-title">Guess the Mystery Sentence</h3>
+            </div>
+            <div class="game-status-badge" id="gameStatusBadge">
+              <span class="pulse-dot"></span>
+              <span id="gameStatusText">Booth Speaker Ready</span>
+            </div>
+          </div>
+
+          <p class="game-intro">
+            Put on the demonstration headset at our booth! Select a mystery sentence below and tap <strong>Transmit to Booth Speaker</strong>. The laptop will play the speech into the microphone while music blasts. Listen in your headset and see if you can guess what was said!
+          </p>
+
+          <!-- Mystery Sentence Dropdown & Trigger Button -->
+          <div class="game-control-row">
+            <div class="game-select-group">
+              <label for="mysterySentenceSelect" class="game-label">Select Mystery Message:</label>
+              <select id="mysterySentenceSelect" class="game-dropdown" aria-label="Select a mystery sentence to play through the booth speaker">
+                <option value="A">Mystery Sentence A</option>
+                <option value="B">Mystery Sentence B</option>
+                <option value="C">Mystery Sentence C</option>
+                <option value="D">Mystery Sentence D</option>
+                <option value="E">Mystery Sentence E</option>
+                <option value="F">Mystery Sentence F</option>
+              </select>
+            </div>
+            
+            <button type="button" id="playMysteryBtn" class="game-play-btn">
+              <span class="play-icon">🔊</span>
+              <span id="playBtnText">Transmit to Booth Speaker</span>
+            </button>
+          </div>
+
+          <!-- Cooldown & Transmission Progress Indicator -->
+          <div class="cooldown-container" id="cooldownContainer" style="display: none;">
+            <div class="cooldown-info">
+              <span>🔊 Playing on booth speaker... Listen carefully through the headset!</span>
+              <strong id="cooldownSeconds">6s</strong>
+            </div>
+            <div class="cooldown-meter">
+              <div class="cooldown-fill" id="cooldownFill" style="width: 100%;"></div>
+            </div>
+          </div>
+
+          <!-- Mystery Reveal Section (Spoiler Accordion) -->
+          <div class="mystery-reveal-box">
+            <div class="reveal-header">
+              <span>Think you guessed it? Check your answer:</span>
+              <button type="button" id="toggleRevealBtn" class="reveal-toggle-btn">Reveal Current Sentence</button>
+            </div>
+            <div class="revealed-content" id="revealedContent" style="display: none;">
+              <div class="mystery-answer-card">
+                <span class="answer-badge" id="revealedBadge">Sentence A</span>
+                <p class="answer-text" id="revealedText">"We love the digital smart lab"</p>
+                <span class="answer-subtext">Did the DSP filter reveal the words clearly over the music?</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 6: Objective Evaluation & Findings -->
     <section class="section" id="findings">
       <div class="container">
         <span class="section-label">Empirical Evaluation</span>
@@ -538,7 +688,7 @@
       </div>
     </section>
 
-    <!-- Section 6: Hardware Demonstration -->
+    <!-- Section 7: Hardware Demonstration -->
     <section class="section" id="hardware">
       <div class="container">
         <span class="section-label">Hardware Implementation</span>
@@ -593,7 +743,9 @@
   </footer>
 
   <!-- Scripts -->
+  <script src="js/paho-mqtt.min.js"></script>
   <script src="js/visual-slider.js"></script>
+  <script src="js/digital-twin.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
