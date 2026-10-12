@@ -500,23 +500,23 @@
           <div class="twin-grid">
             <!-- Active DSP Pipeline Card -->
             <div class="twin-card">
-              <span class="twin-card-label">Active DSP Pipeline</span>
+              <span class="twin-card-label">Active DSP Pipeline (Live Telemetry)</span>
               <div class="twin-pill-group" id="pipelineGroup">
-                <button type="button" class="twin-pill" data-pipeline="PASSTHROUGH">Passthrough (Raw)</button>
-                <button type="button" class="twin-pill" data-pipeline="CONTROL">Control (FIR)</button>
-                <button type="button" class="twin-pill" data-pipeline="MIXED">Mixed (Notch)</button>
-                <button type="button" class="twin-pill active" data-pipeline="OPTIMAL">Optimal (Adaptive)</button>
+                <span class="twin-pill" data-pipeline="PASSTHROUGH">Passthrough (Raw)</span>
+                <span class="twin-pill" data-pipeline="CONTROL">Control (FIR)</span>
+                <span class="twin-pill" data-pipeline="MIXED">Mixed (Notch)</span>
+                <span class="twin-pill active" data-pipeline="OPTIMAL">Optimal (Adaptive)</span>
               </div>
             </div>
 
             <!-- Active Noise Filter Card -->
             <div class="twin-card">
-              <span class="twin-card-label">Active Genre Baseline</span>
+              <span class="twin-card-label">Active Genre Baseline (Live Telemetry)</span>
               <div class="twin-pill-group" id="filterGroup">
-                <button type="button" class="twin-pill" data-filter="NONE">None</button>
-                <button type="button" class="twin-pill active" data-filter="TECHNO">Techno</button>
-                <button type="button" class="twin-pill" data-filter="ROCK">Rock</button>
-                <button type="button" class="twin-pill" data-filter="JAZZ">Jazz</button>
+                <span class="twin-pill" data-filter="NONE">None</span>
+                <span class="twin-pill active" data-filter="TECHNO">Techno</span>
+                <span class="twin-pill" data-filter="ROCK">Rock</span>
+                <span class="twin-pill" data-filter="JAZZ">Jazz</span>
               </div>
             </div>
 
@@ -586,18 +586,14 @@
             </div>
           </div>
 
-          <!-- Mystery Reveal Section (Spoiler Accordion) -->
-          <div class="mystery-reveal-box">
-            <div class="reveal-header">
-              <span>Think you guessed it? Check your answer:</span>
-              <button type="button" id="toggleRevealBtn" class="reveal-toggle-btn">Reveal Current Sentence</button>
-            </div>
-            <div class="revealed-content" id="revealedContent" style="display: none;">
-              <div class="mystery-answer-card">
-                <span class="answer-badge" id="revealedBadge">Sentence A</span>
-                <p class="answer-text" id="revealedText">"We love the digital smart lab"</p>
-                <span class="answer-subtext">Did the DSP filter reveal the words clearly over the music?</span>
-              </div>
+          <!-- Open Day Secret Challenge Prompt (No reveal button) -->
+          <div class="mystery-challenge-card">
+            <div class="challenge-icon-wrap">🎯</div>
+            <div class="challenge-text-wrap">
+              <strong>Open Day Rule: Keep It Secret!</strong>
+              <p>
+                The sentence text is hidden. Listen closely through the headset and tell our team at the booth what you heard to see if you guessed correctly!
+              </p>
             </div>
           </div>
         </div>

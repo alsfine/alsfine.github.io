@@ -1,50 +1,21 @@
 /**
  * ClearVoice Digital Twin & Mystery Speech Game Controller
  * Connects static GitHub Pages site to live Python hardware telemetry via MQTT over WSS.
- * Includes interactive fallback simulator and Web Speech API synthesis.
+ * Strictly read-only digital twin — hardware control is reserved for presenters.
+ * Mystery sentences are strictly unrevealed — visitors must guess what they hear!
  */
 
-// Mystery sentence library (Hidden from direct view until revealed by user)
+// Mystery sentence descriptors (Text is completely hidden from client source to preserve the guessing game)
 const MYSTERY_SENTENCES = {
-  A: {
-    id: 'A',
-    label: 'Sentence A',
-    text: 'We love the digital smart lab',
-    category: 'Wits Lab'
-  },
-  B: {
-    id: 'B',
-    label: 'Sentence B',
-    text: 'Vote for us for best poster',
-    category: 'Open Day'
-  },
-  C: {
-    id: 'C',
-    label: 'Sentence C',
-    text: 'JP Morgan is the best attacking trio in the world',
-    category: 'Campus Fun'
-  },
-  D: {
-    id: 'D',
-    label: 'Sentence D',
-    text: 'Electrical engineering is the hardest degree at Wits',
-    category: 'Engineering Pride'
-  },
-  E: {
-    id: 'E',
-    label: 'Sentence E',
-    text: 'Can you hear my voice through all this loud music?',
-    category: 'Acoustic Challenge'
-  },
-  F: {
-    id: 'F',
-    label: 'Sentence F',
-    text: 'Ryan and Raphael built the ultimate speech filter',
-    category: 'Student Authors'
-  }
+  A: { id: 'A', label: 'Sentence A', hint: 'Wits Smart Lab' },
+  B: { id: 'B', label: 'Sentence B', hint: 'Open Day Poster' },
+  C: { id: 'C', label: 'Sentence C', hint: 'Campus Fun Trio' },
+  D: { id: 'D', label: 'Sentence D', hint: 'Engineering Pride' },
+  E: { id: 'E', label: 'Sentence E', hint: 'Acoustic Challenge' },
+  F: { id: 'F', label: 'Sentence F', hint: 'Project Authors' }
 };
 
-// MQTT Configuration (Free, public, no-auth broker over secure WebSocket)
+// MQTT Configuration (Free, public broker over secure WebSocket)
 const MQTT_CONFIG = {
   host: 'broker.hivemq.com',
   port: 8884,
@@ -53,7 +24,7 @@ const MQTT_CONFIG = {
   topicTts: 'wits/clearvoice/tts'
 };
 
-// Digital Twin State
+// Digital Twin & Booth Game State
 const twinState = {
   isHardwareConnected: false,
   lastTelemetryTime: 0,
@@ -62,6 +33,7 @@ const twinState = {
   audioLevel: 15,
   isAudioPresent: false,
   isVadActive: false,
+  isGameEnabled: true,       // Can be locked remotely by presenters via hotkey
   isCooldown: false,
   cooldownRemaining: 0,
   mqttClient: null
@@ -73,6 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initDigitalTwinUI();
   initMqttClient();
   startHardwareWatchdog();
+  checkStoredCooldown();
 });
 
 /**
@@ -81,86 +54,53 @@ document.addEventListener('DOMContentLoaded', () => {
 function initMysteryGame() {
   const select = document.getElementById('mysterySentenceSelect');
   const playBtn = document.getElementById('playMysteryBtn');
-  const toggleRevealBtn = document.getElementById('toggleRevealBtn');
-  const revealedContent = document.getElementById('revealedContent');
-  const revealedBadge = document.getElementById('revealedBadge');
-  const revealedText = document.getElementById('revealedText');
 
   if (!select || !playBtn) return;
 
-  // Populate options
+  // Populate options (only label & category hint, never the answer)
   select.innerHTML = '';
   Object.keys(MYSTERY_SENTENCES).forEach(key => {
     const s = MYSTERY_SENTENCES[key];
     const opt = document.createElement('option');
     opt.value = key;
-    opt.textContent = `Mystery ${s.label} (${s.category})`;
+    opt.textContent = `Mystery ${s.label} (${s.hint})`;
     select.appendChild(opt);
   });
 
-  // Play button click
+  // Play button click handler
   playBtn.addEventListener('click', () => {
-    if (twinState.isCooldown) return;
+    if (twinState.isCooldown || !twinState.isGameEnabled) return;
     const selectedKey = select.value;
     const sentenceObj = MYSTERY_SENTENCES[selectedKey];
     if (!sentenceObj) return;
 
     triggerSentencePlayback(sentenceObj);
   });
-
-  // Reveal Answer toggle
-  if (toggleRevealBtn && revealedContent) {
-    toggleRevealBtn.addEventListener('click', () => {
-      const isVisible = revealedContent.style.display === 'block';
-      if (isVisible) {
-        revealedContent.style.display = 'none';
-        toggleRevealBtn.textContent = 'Reveal Current Sentence';
-      } else {
-        const selectedKey = select.value;
-        const sentenceObj = MYSTERY_SENTENCES[selectedKey];
-        if (revealedBadge) revealedBadge.textContent = sentenceObj.label;
-        if (revealedText) revealedText.textContent = `"${sentenceObj.text}"`;
-        revealedContent.style.display = 'block';
-        toggleRevealBtn.textContent = 'Hide Answer';
-      }
-    });
-
-    // Update revealed text when dropdown changes
-    select.addEventListener('change', () => {
-      if (revealedContent.style.display === 'block') {
-        const selectedKey = select.value;
-        const sentenceObj = MYSTERY_SENTENCES[selectedKey];
-        if (revealedBadge) revealedBadge.textContent = sentenceObj.label;
-        if (revealedText) revealedText.textContent = `"${sentenceObj.text}"`;
-      }
-    });
-  }
 }
 
 /**
- * Triggers sentence playback with cooldown & sends MQTT packet
+ * Triggers sentence playback with anti-abuse cooldown & sends MQTT packet
  */
 function triggerSentencePlayback(sentenceObj) {
-  startCooldown(6);
+  startCooldown(12);
 
-  // 1. Transmit command via MQTT if connected
+  // 1. Transmit command via MQTT if connected (only sends ID, never plaintext)
   if (twinState.mqttClient && twinState.mqttClient.isConnected()) {
     try {
       const payload = JSON.stringify({
         cmd: 'PLAY_TTS',
         sentence_id: sentenceObj.id,
-        text: sentenceObj.text,
         timestamp: Date.now()
       });
       const message = new Paho.MQTT.Message(payload);
       message.destinationName = MQTT_CONFIG.topicTts;
       twinState.mqttClient.send(message);
     } catch (e) {
-      console.warn('MQTT send failed, falling back to local TTS:', e);
+      console.warn('MQTT send failed:', e);
     }
   }
 
-  // 2. Local browser audio playback (Pre-rendered WAV with Web Speech fallback)
+  // 2. Play pre-rendered audio asset locally
   playLocalSpeech(sentenceObj);
 
   // 3. Animate the Digital Twin VU Meter in sync with speech
@@ -168,54 +108,57 @@ function triggerSentencePlayback(sentenceObj) {
 }
 
 /**
- * Plays pre-rendered high-quality audio clip (with Web Speech API fallback)
+ * Plays pre-rendered high-quality audio clip directly from assets/audio/
  */
 function playLocalSpeech(sentenceObj) {
   const audioPath = `assets/audio/mystery_${sentenceObj.id.toLowerCase()}.wav`;
-  let played = false;
 
   try {
     const audio = new Audio(audioPath);
     audio.onplay = () => {
-      played = true;
-      updateVadDisplay(true, 'VAD: Active (Voice Detected)');
+      updateVadDisplay(true, 'VAD: Active (Speech Transmitted)');
     };
     audio.onended = () => {
       updateVadDisplay(false, 'VAD: Idle');
     };
-    audio.onerror = () => {
-      // Fallback to Web Speech API if audio element cannot load
-      fallbackWebSpeech(sentenceObj.text);
+    audio.onerror = (e) => {
+      console.warn('Local audio element could not play asset:', audioPath, e);
     };
     audio.play().catch(err => {
-      console.warn('HTML5 Audio autoplay prevented, falling back to Web Speech:', err);
-      fallbackWebSpeech(sentenceObj.text);
+      console.warn('HTML5 Audio autoplay notice:', err);
     });
   } catch (e) {
-    fallbackWebSpeech(sentenceObj.text);
-  }
-}
-
-function fallbackWebSpeech(text) {
-  if (!('speechSynthesis' in window)) return;
-  try {
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 0.95;
-    utterance.onstart = () => updateVadDisplay(true, 'VAD: Active (Voice Detected)');
-    utterance.onend = () => updateVadDisplay(false, 'VAD: Idle');
-    window.speechSynthesis.speak(utterance);
-  } catch (err) {
-    console.warn('Web Speech error:', err);
+    console.warn('Audio playback error:', e);
   }
 }
 
 /**
- * 6-Second Anti-Spam Cooldown Timer
+ * Cooldown & Anti-Spam Management (persists across page reloads via localStorage)
  */
-function startCooldown(seconds) {
+let cooldownInterval = null;
+
+function checkStoredCooldown() {
+  try {
+    const storedEnd = parseInt(localStorage.getItem('clearvoice_cooldown_end') || '0', 10);
+    const now = Date.now();
+    if (storedEnd > now) {
+      const remainingSec = (storedEnd - now) / 1000;
+      startCooldown(remainingSec, false);
+    }
+  } catch (e) {}
+}
+
+function startCooldown(seconds, storeStorage = true) {
+  if (cooldownInterval) clearInterval(cooldownInterval);
+
   twinState.isCooldown = true;
   twinState.cooldownRemaining = seconds;
+
+  if (storeStorage) {
+    try {
+      localStorage.setItem('clearvoice_cooldown_end', String(Date.now() + Math.ceil(seconds) * 1000));
+    } catch (e) {}
+  }
 
   const playBtn = document.getElementById('playMysteryBtn');
   const playBtnText = document.getElementById('playBtnText');
@@ -230,17 +173,22 @@ function startCooldown(seconds) {
   if (statusBadge) statusBadge.classList.add('playing');
   if (statusText) statusText.textContent = '🔊 Playing on Booth Speaker...';
 
-  const total = seconds;
-  const interval = setInterval(() => {
+  const total = Math.max(1, seconds);
+  cooldownInterval = setInterval(() => {
     twinState.cooldownRemaining -= 0.1;
     if (twinState.cooldownRemaining <= 0) {
-      clearInterval(interval);
+      clearInterval(cooldownInterval);
+      cooldownInterval = null;
       twinState.isCooldown = false;
-      if (playBtn) playBtn.disabled = false;
-      if (playBtnText) playBtnText.textContent = 'Transmit to Booth Speaker';
+      try { localStorage.removeItem('clearvoice_cooldown_end'); } catch (e) {}
+
+      if (twinState.isGameEnabled) {
+        if (playBtn) playBtn.disabled = false;
+        if (playBtnText) playBtnText.textContent = 'Transmit to Booth Speaker';
+        if (statusBadge) statusBadge.classList.remove('playing');
+        if (statusText) statusText.textContent = 'Booth Speaker Ready';
+      }
       if (cooldownBox) cooldownBox.style.display = 'none';
-      if (statusBadge) statusBadge.classList.remove('playing');
-      if (statusText) statusText.textContent = 'Booth Speaker Ready';
     } else {
       const pct = (twinState.cooldownRemaining / total) * 100;
       if (cooldownFill) cooldownFill.style.width = pct + '%';
@@ -251,37 +199,13 @@ function startCooldown(seconds) {
 }
 
 /**
- * 2. Digital Twin UI & Interactive Simulator Controls
+ * 2. Digital Twin UI — Strictly Read-Only Hardware Telemetry Display
+ * Users on the website cannot configure or modify hardware DSP settings.
  */
 function initDigitalTwinUI() {
-  const pipelinePills = document.querySelectorAll('#pipelineGroup .twin-pill');
-  const filterPills = document.querySelectorAll('#filterGroup .twin-pill');
-
-  // Allow clicking to change states in simulator mode
-  pipelinePills.forEach(pill => {
-    pill.addEventListener('click', () => {
-      const p = pill.getAttribute('data-pipeline');
-      if (p) {
-        setPipelineUI(p);
-        // If connected, user could send command to ESP32
-        if (twinState.mqttClient && twinState.mqttClient.isConnected()) {
-          sendMqttCommand('SET_PIPELINE', p);
-        }
-      }
-    });
-  });
-
-  filterPills.forEach(pill => {
-    pill.addEventListener('click', () => {
-      const f = pill.getAttribute('data-filter');
-      if (f) {
-        setFilterUI(f);
-        if (twinState.mqttClient && twinState.mqttClient.isConnected()) {
-          sendMqttCommand('SET_FILTER', f);
-        }
-      }
-    });
-  });
+  // Ensure default UI state reflects initial baseline
+  setPipelineUI(twinState.currentPipeline);
+  setFilterUI(twinState.currentFilter);
 }
 
 function setPipelineUI(pipeline) {
@@ -360,12 +284,12 @@ function simulateSpeechVuPulse(durationMs) {
 }
 
 /**
- * 3. MQTT Client for Live Telemetry & Control
+ * 3. MQTT Client for Live Telemetry (Read-Only)
  */
 function initMqttClient() {
   if (typeof Paho === 'undefined') {
-    console.warn('Paho MQTT library not loaded; staying in Simulator mode.');
-    updateConnectionStatus(false, 'Simulator Mode (Offline)');
+    console.warn('Paho MQTT library not loaded; running in Standby mode.');
+    updateConnectionStatus(false, 'Standby Mode (Broker Offline)');
     return;
   }
 
@@ -374,7 +298,7 @@ function initMqttClient() {
 
   client.onConnectionLost = (responseObject) => {
     console.warn('MQTT Connection lost:', responseObject.errorMessage);
-    updateConnectionStatus(false, 'Simulator Mode (Reconnecting...)');
+    updateConnectionStatus(false, 'Standby (Reconnecting...)');
     setTimeout(initMqttClient, 5000);
   };
 
@@ -391,14 +315,13 @@ function initMqttClient() {
     useSSL: true,
     timeout: 5,
     onSuccess: () => {
-      console.log('Connected to MQTT broker via WSS successfully');
       twinState.mqttClient = client;
       client.subscribe(MQTT_CONFIG.topicTelemetry);
       updateConnectionStatus(false, 'MQTT Connected (Awaiting Hardware...)');
     },
     onFailure: (err) => {
       console.warn('MQTT connection failed:', err);
-      updateConnectionStatus(false, 'Simulator Mode (Standalone)');
+      updateConnectionStatus(false, 'Standby Mode (Standalone)');
     }
   };
 
@@ -406,19 +329,20 @@ function initMqttClient() {
     client.connect(connectOptions);
   } catch (err) {
     console.warn('MQTT connect error:', err);
-    updateConnectionStatus(false, 'Simulator Mode (Standalone)');
+    updateConnectionStatus(false, 'Standby Mode (Standalone)');
   }
 }
 
 /**
- * Handles live telemetry JSON packets from passthrough.py
+ * Handles incoming live telemetry JSON packets from passthrough.py
  */
 function handleIncomingTelemetry(data) {
   twinState.lastTelemetryTime = Date.now();
   twinState.isHardwareConnected = true;
 
-  updateConnectionStatus(true, '🟢 LIVE HARDWARE (ESP32-S3 Live)');
+  updateConnectionStatus(true, '🟢 LIVE HARDWARE (ESP32-S3 Stream)');
 
+  // 1. DSP Pipeline & Filter (Read-Only State Display)
   if (data.pipeline) {
     setPipelineUI(data.pipeline.toUpperCase());
   }
@@ -434,17 +358,41 @@ function handleIncomingTelemetry(data) {
   if (typeof data.vad_active !== 'undefined') {
     updateVadDisplay(data.vad_active, data.vad_active ? 'VAD: Active (Adaptation Frozen)' : 'VAD: Tracking Room Noise');
   }
-}
 
-function sendMqttCommand(type, value) {
-  if (!twinState.mqttClient || !twinState.mqttClient.isConnected()) return;
-  try {
-    const payload = JSON.stringify({ type, value, timestamp: Date.now() });
-    const msg = new Paho.MQTT.Message(payload);
-    msg.destinationName = 'wits/clearvoice/control';
-    twinState.mqttClient.send(msg);
-  } catch (e) {
-    console.warn('Failed to send control command:', e);
+  // 2. Presenter Master Lock Status
+  const playBtn = document.getElementById('playMysteryBtn');
+  const playBtnText = document.getElementById('playBtnText');
+  const statusBadge = document.getElementById('gameStatusBadge');
+  const statusText = document.getElementById('gameStatusText');
+
+  if (typeof data.game_enabled !== 'undefined') {
+    twinState.isGameEnabled = Boolean(data.game_enabled);
+
+    if (!twinState.isGameEnabled) {
+      if (playBtn) playBtn.disabled = true;
+      if (playBtnText) playBtnText.textContent = '🔒 Speaker Locked by Presenter';
+      if (statusBadge) {
+        statusBadge.classList.remove('playing');
+        statusBadge.style.backgroundColor = '#fef2f2';
+        statusBadge.style.borderColor = '#fecaca';
+        statusBadge.style.color = '#b91c1c';
+      }
+      if (statusText) statusText.textContent = 'Demo in Progress (Speaker Locked)';
+    } else if (!twinState.isCooldown) {
+      if (playBtn) playBtn.disabled = false;
+      if (playBtnText) playBtnText.textContent = 'Transmit to Booth Speaker';
+      if (statusBadge) {
+        statusBadge.style.backgroundColor = '';
+        statusBadge.style.borderColor = '';
+        statusBadge.style.color = '';
+      }
+      if (statusText) statusText.textContent = 'Booth Speaker Ready';
+    }
+  }
+
+  // 3. Hardware Cooldown Broadcast Sync
+  if (data.cooldown_active && !twinState.isCooldown && data.cooldown_remaining > 0) {
+    startCooldown(data.cooldown_remaining, false);
   }
 }
 
@@ -466,7 +414,7 @@ function updateConnectionStatus(isLive, labelText) {
 }
 
 /**
- * Watchdog: Automatically toggles back to Simulator Mode if no telemetry arrives for 4s
+ * Watchdog: Toggles status back to Standby if no telemetry arrives for 4s
  */
 function startHardwareWatchdog() {
   setInterval(() => {
@@ -474,7 +422,7 @@ function startHardwareWatchdog() {
       const elapsed = Date.now() - twinState.lastTelemetryTime;
       if (elapsed > 4000) {
         twinState.isHardwareConnected = false;
-        updateConnectionStatus(false, '🟡 INTERACTIVE SIMULATOR (STANDALONE)');
+        updateConnectionStatus(false, '🟡 STANDBY (Awaiting Demo Telemetry)');
       }
     }
   }, 2000);
