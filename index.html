@@ -62,81 +62,138 @@
       </div>
     </section>
 
-    <!-- Section 1: The Problem -->
-    <section class="section" id="problem">
+    <!-- Section 1: Mini Digital Twin & Open Day Live Challenge -->
+    <section class="section" id="digital-twin">
       <div class="container">
-        <span class="section-label">The Challenge</span>
-        <h2 class="section-title">Why Can't We Hear Our Partner Over Loud Music?</h2>
+        <span class="section-label">Real-Time Telemetry &amp; Live Demo</span>
+        <h2 class="section-title">Mini Digital Twin &amp; Booth Challenge</h2>
         
         <p>
-          Unlike steady background hum like rain or an air conditioner, music is dynamic, loud, and constantly shifting. When a speaking partner talks into the microphone on that side of the headset in a noisy venue, <strong>the booming music bass drums, basslines, and synthesizers vibrate in the exact same pitch range as their vocal cords</strong>.
-        </p>
-        
-        <div class="story-card info">
-          <h3 class="card-heading">The Ear's Reaction: Acoustic Masking</h3>
-          <p>
-            When loud, booming low-frequency sounds enter the human ear, they trigger an auditory effect known as <em>acoustic masking</em>. The deep bass literally overpowers and drowns out the delicate, higher-pitched sounds of speech consonants (like "s", "t", and "p") that are essential for understanding words.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Section 2: Why Conventional Filters Fall Short -->
-    <section class="section" id="conventional-approach">
-      <div class="container">
-        <span class="section-label">The Traditional Trade-Off</span>
-        <h2 class="section-title">The "Tin Can" Trap</h2>
-        
-        <p>
-          Standard communication headsets and basic noise filters try to solve this by simply cutting off all sounds below <strong>300 Hz</strong>. While this does eliminate deep bass, it creates an unfortunate side effect.
+          This dashboard connects directly to the live demonstration running at our booth. When our Python controller changes filters or detects voice on the ESP32, this twin reflects the hardware state in real time over MQTT.
         </p>
 
-        <div class="story-card warn">
-          <h3 class="card-heading">What Gets Lost in the Cut?</h3>
-          <p>
-            A person's natural speaking pitch fundamental sits well below 300 Hz (around <strong>125 Hz</strong> for typical male voices and <strong>218 Hz</strong> for typical female voices).
-          </p>
-
-          <div class="comparison-visual-box">
-            <div class="visual-row">
-              <div class="visual-row-header">
-                <span>Traditional 300 Hz Cut (Natural Voice Retained)</span>
-                <strong>~75% to 84%</strong>
-              </div>
-              <div class="visual-meter">
-                <div class="meter-fill bad" data-width="78%" style="width: 0%;"></div>
-              </div>
-              <p style="font-size: 0.82rem; color: var(--text-faint); margin-top: 4px;">
-                Strips up to 26% of vocal warmth, leaving voices sounding thin, metallic, and robotic.
-              </p>
+        <!-- Digital Twin Telemetry Dashboard -->
+        <div class="digital-twin-box">
+          <div class="twin-header-bar">
+            <div class="twin-title-wrap">
+              <span class="twin-badge">Hardware Twin</span>
+              <h3 class="twin-title">ESP32-S3 Live State</h3>
             </div>
-
-            <div class="visual-row">
-              <div class="visual-row-header">
-                <span>Our Genre-Informed Baseline (Natural Voice Retained)</span>
-                <strong>~98.6%</strong>
-              </div>
-              <div class="visual-meter">
-                <div class="meter-fill good" data-width="98.6%" style="width: 0%;"></div>
-              </div>
-              <p style="font-size: 0.82rem; color: var(--text-faint); margin-top: 4px;">
-                Leaves the broad voice band open while specifically targeting the music's bass resonance points.
-              </p>
+            <div class="twin-connection-status" id="twinConnectionPill">
+              <span class="status-indicator-dot simulator" id="twinStatusDot"></span>
+              <span id="twinStatusText">Connecting to MQTT...</span>
             </div>
           </div>
 
-          <p>
-            When standard filters amputate that low pitch energy, the person ends up sounding like a thin robot speaking through an empty tin can, and speech recognizers still struggle to make out what was said.
+          <div class="twin-grid">
+            <!-- Active DSP Pipeline Card -->
+            <div class="twin-card">
+              <span class="twin-card-label">Active DSP Pipeline (Live Telemetry)</span>
+              <div class="twin-pill-group" id="pipelineGroup">
+                <span class="twin-pill" data-pipeline="PASSTHROUGH">Passthrough (Raw)</span>
+                <span class="twin-pill" data-pipeline="CONTROL">Control (FIR)</span>
+                <span class="twin-pill" data-pipeline="MIXED">Mixed (Notch)</span>
+                <span class="twin-pill active" data-pipeline="OPTIMAL">Optimal (Adaptive)</span>
+              </div>
+            </div>
+
+            <!-- Active Noise Filter Card -->
+            <div class="twin-card">
+              <span class="twin-card-label">Active Genre Baseline (Live Telemetry)</span>
+              <div class="twin-pill-group" id="filterGroup">
+                <span class="twin-pill" data-filter="NONE">None</span>
+                <span class="twin-pill active" data-filter="TECHNO">Techno</span>
+                <span class="twin-pill" data-filter="ROCK">Rock</span>
+                <span class="twin-pill" data-filter="JAZZ">Jazz</span>
+              </div>
+            </div>
+
+            <!-- Audio Energy VU Meter & VAD -->
+            <div class="twin-card meter-card">
+              <div class="twin-meter-header">
+                <span class="twin-card-label">Microphone Audio Energy</span>
+                <span class="vad-status-badge" id="vadStatusBadge">VAD: Idle</span>
+              </div>
+              <div class="vu-meter-bar">
+                <div class="vu-meter-fill" id="vuMeterFill" style="width: 15%;"></div>
+              </div>
+              <div class="vu-scale">
+                <span>Quiet Room</span>
+                <span>Spoken Voice</span>
+                <span>Loud Music Drop</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Open Day Live Challenge: Guess the Mystery Sentence -->
+        <div class="game-box" id="booth-game">
+          <div class="game-header-bar">
+            <div>
+              <span class="game-badge">Open Day Booth Game</span>
+              <h3 class="game-title">Guess the Mystery Sentence</h3>
+            </div>
+            <div class="game-status-badge" id="gameStatusBadge">
+              <span class="pulse-dot"></span>
+              <span id="gameStatusText">Booth Speaker Ready</span>
+            </div>
+          </div>
+
+          <p class="game-intro">
+            Put on the demonstration headset at our booth! Select a mystery sentence below and tap <strong>Transmit to Booth Speaker</strong>. The laptop will play the speech into the microphone while music blasts. Listen in your headset and see if you can guess what was said!
           </p>
+
+          <!-- Mystery Sentence Dropdown & Trigger Button -->
+          <div class="game-control-row">
+            <div class="game-select-group">
+              <label for="mysterySentenceSelect" class="game-label">Select Mystery Message:</label>
+              <select id="mysterySentenceSelect" class="game-dropdown" aria-label="Select a mystery sentence to play through the booth speaker">
+                <option value="A">Mystery Sentence A</option>
+                <option value="B">Mystery Sentence B</option>
+                <option value="C">Mystery Sentence C</option>
+                <option value="D">Mystery Sentence D</option>
+                <option value="E">Mystery Sentence E</option>
+                <option value="F">Mystery Sentence F</option>
+              </select>
+            </div>
+            
+            <button type="button" id="playMysteryBtn" class="game-play-btn">
+              <span class="play-icon">🔊</span>
+              <span id="playBtnText">Transmit to Booth Speaker</span>
+            </button>
+          </div>
+
+          <!-- Cooldown & Transmission Progress Indicator -->
+          <div class="cooldown-container" id="cooldownContainer" style="display: none;">
+            <div class="cooldown-info">
+              <span>🔊 Playing on booth speaker... Listen carefully through the headset!</span>
+              <strong id="cooldownSeconds">6s</strong>
+            </div>
+            <div class="cooldown-meter">
+              <div class="cooldown-fill" id="cooldownFill" style="width: 100%;"></div>
+            </div>
+          </div>
+
+          <!-- Open Day Secret Challenge Prompt (No reveal button) -->
+          <div class="mystery-challenge-card">
+            <div class="challenge-icon-wrap">🎯</div>
+            <div class="challenge-text-wrap">
+              <strong>Open Day Rule: Keep It Secret!</strong>
+              <p>
+                The sentence text is hidden. Listen closely through the headset and tell our team at the booth what you heard to see if you guessed correctly!
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- Section 3: Our Solution -->
+
+    <!-- Section 2: Dual-Microphone & Speaker Setup -->
     <section class="section" id="solution">
       <div class="container">
-        <span class="section-label">Our Architecture</span>
-        <h2 class="section-title">A Two-Stage Hybrid Approach</h2>
+        <span class="section-label">Acoustic Setup &amp; Architecture</span>
+        <h2 class="section-title">How the Headset &amp; Speakers Are Positioned</h2>
         
         <p>
           Instead of relying on a single blunt filter, our system couples a genre-informed baseline filter with an adaptive noise-canceling algorithm.
@@ -400,7 +457,77 @@
       </div>
     </section>
 
-    <!-- Section 4: Interactive Visual Aid -->
+    <!-- Section 3: The Problem -->
+    <section class="section" id="problem">
+      <div class="container">
+        <span class="section-label">The Acoustic Challenge</span>
+        <h2 class="section-title">Why Can't We Hear Our Partner Over Loud Music?</h2>
+        
+        <p>
+          Unlike steady background hum like rain or an air conditioner, music is dynamic, loud, and constantly shifting. When a speaking partner talks into the microphone on that side of the headset in a noisy venue, <strong>the booming music bass drums, basslines, and synthesizers vibrate in the exact same pitch range as their vocal cords</strong>.
+        </p>
+        
+        <div class="story-card info">
+          <h3 class="card-heading">The Ear's Reaction: Acoustic Masking</h3>
+          <p>
+            When loud, booming low-frequency sounds enter the human ear, they trigger an auditory effect known as <em>acoustic masking</em>. The deep bass literally overpowers and drowns out the delicate, higher-pitched sounds of speech consonants (like "s", "t", and "p") that are essential for understanding words.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Why Conventional Filters Fall Short -->
+    <section class="section" id="conventional-approach">
+      <div class="container">
+        <span class="section-label">The Traditional Trade-Off</span>
+        <h2 class="section-title">The "Tin Can" Trap</h2>
+        
+        <p>
+          Standard communication headsets and basic noise filters try to solve this by simply cutting off all sounds below <strong>300 Hz</strong>. While this does eliminate deep bass, it creates an unfortunate side effect.
+        </p>
+
+        <div class="story-card warn">
+          <h3 class="card-heading">What Gets Lost in the Cut?</h3>
+          <p>
+            A person's natural speaking pitch fundamental sits well below 300 Hz (around <strong>125 Hz</strong> for typical male voices and <strong>218 Hz</strong> for typical female voices).
+          </p>
+
+          <div class="comparison-visual-box">
+            <div class="visual-row">
+              <div class="visual-row-header">
+                <span>Traditional 300 Hz Cut (Natural Voice Retained)</span>
+                <strong>~75% to 84%</strong>
+              </div>
+              <div class="visual-meter">
+                <div class="meter-fill bad" data-width="78%" style="width: 0%;"></div>
+              </div>
+              <p style="font-size: 0.82rem; color: var(--text-faint); margin-top: 4px;">
+                Strips up to 26% of vocal warmth, leaving voices sounding thin, metallic, and robotic.
+              </p>
+            </div>
+
+            <div class="visual-row">
+              <div class="visual-row-header">
+                <span>Our Genre-Informed Baseline (Natural Voice Retained)</span>
+                <strong>~98.6%</strong>
+              </div>
+              <div class="visual-meter">
+                <div class="meter-fill good" data-width="98.6%" style="width: 0%;"></div>
+              </div>
+              <p style="font-size: 0.82rem; color: var(--text-faint); margin-top: 4px;">
+                Leaves the broad voice band open while specifically targeting the music's bass resonance points.
+              </p>
+            </div>
+          </div>
+
+          <p>
+            When standard filters amputate that low pitch energy, the person ends up sounding like a thin robot speaking through an empty tin can, and speech recognizers still struggle to make out what was said.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5: Interactive Visual Aid -->
     <section class="section" id="interactive-demo">
       <div class="container">
         <span class="section-label">Interactive Visual Aid</span>
@@ -474,131 +601,6 @@
       </div>
     </section>
 
-    <!-- Section 5: Mini Digital Twin & Open Day Live Challenge -->
-    <section class="section" id="digital-twin">
-      <div class="container">
-        <span class="section-label">Real-Time Telemetry &amp; Demo</span>
-        <h2 class="section-title">Mini Digital Twin</h2>
-        
-        <p>
-          This dashboard connects directly to the live demonstration running at our booth. When our Python controller changes filters or detects voice on the ESP32, this twin reflects the hardware state in real time over MQTT.
-        </p>
-
-        <!-- Digital Twin Telemetry Dashboard -->
-        <div class="digital-twin-box">
-          <div class="twin-header-bar">
-            <div class="twin-title-wrap">
-              <span class="twin-badge">Hardware Twin</span>
-              <h3 class="twin-title">ESP32-S3 Live State</h3>
-            </div>
-            <div class="twin-connection-status" id="twinConnectionPill">
-              <span class="status-indicator-dot simulator" id="twinStatusDot"></span>
-              <span id="twinStatusText">Connecting to MQTT...</span>
-            </div>
-          </div>
-
-          <div class="twin-grid">
-            <!-- Active DSP Pipeline Card -->
-            <div class="twin-card">
-              <span class="twin-card-label">Active DSP Pipeline (Live Telemetry)</span>
-              <div class="twin-pill-group" id="pipelineGroup">
-                <span class="twin-pill" data-pipeline="PASSTHROUGH">Passthrough (Raw)</span>
-                <span class="twin-pill" data-pipeline="CONTROL">Control (FIR)</span>
-                <span class="twin-pill" data-pipeline="MIXED">Mixed (Notch)</span>
-                <span class="twin-pill active" data-pipeline="OPTIMAL">Optimal (Adaptive)</span>
-              </div>
-            </div>
-
-            <!-- Active Noise Filter Card -->
-            <div class="twin-card">
-              <span class="twin-card-label">Active Genre Baseline (Live Telemetry)</span>
-              <div class="twin-pill-group" id="filterGroup">
-                <span class="twin-pill" data-filter="NONE">None</span>
-                <span class="twin-pill active" data-filter="TECHNO">Techno</span>
-                <span class="twin-pill" data-filter="ROCK">Rock</span>
-                <span class="twin-pill" data-filter="JAZZ">Jazz</span>
-              </div>
-            </div>
-
-            <!-- Audio Energy VU Meter & VAD -->
-            <div class="twin-card meter-card">
-              <div class="twin-meter-header">
-                <span class="twin-card-label">Microphone Audio Energy</span>
-                <span class="vad-status-badge" id="vadStatusBadge">VAD: Idle</span>
-              </div>
-              <div class="vu-meter-bar">
-                <div class="vu-meter-fill" id="vuMeterFill" style="width: 15%;"></div>
-              </div>
-              <div class="vu-scale">
-                <span>Quiet Room</span>
-                <span>Spoken Voice</span>
-                <span>Loud Music Drop</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Open Day Live Challenge: Guess the Mystery Sentence -->
-        <div class="game-box" id="booth-game">
-          <div class="game-header-bar">
-            <div>
-              <span class="game-badge">Open Day Booth Game</span>
-              <h3 class="game-title">Guess the Mystery Sentence</h3>
-            </div>
-            <div class="game-status-badge" id="gameStatusBadge">
-              <span class="pulse-dot"></span>
-              <span id="gameStatusText">Booth Speaker Ready</span>
-            </div>
-          </div>
-
-          <p class="game-intro">
-            Put on the demonstration headset at our booth! Select a mystery sentence below and tap <strong>Transmit to Booth Speaker</strong>. The laptop will play the speech into the microphone while music blasts. Listen in your headset and see if you can guess what was said!
-          </p>
-
-          <!-- Mystery Sentence Dropdown & Trigger Button -->
-          <div class="game-control-row">
-            <div class="game-select-group">
-              <label for="mysterySentenceSelect" class="game-label">Select Mystery Message:</label>
-              <select id="mysterySentenceSelect" class="game-dropdown" aria-label="Select a mystery sentence to play through the booth speaker">
-                <option value="A">Mystery Sentence A</option>
-                <option value="B">Mystery Sentence B</option>
-                <option value="C">Mystery Sentence C</option>
-                <option value="D">Mystery Sentence D</option>
-                <option value="E">Mystery Sentence E</option>
-                <option value="F">Mystery Sentence F</option>
-              </select>
-            </div>
-            
-            <button type="button" id="playMysteryBtn" class="game-play-btn">
-              <span class="play-icon">🔊</span>
-              <span id="playBtnText">Transmit to Booth Speaker</span>
-            </button>
-          </div>
-
-          <!-- Cooldown & Transmission Progress Indicator -->
-          <div class="cooldown-container" id="cooldownContainer" style="display: none;">
-            <div class="cooldown-info">
-              <span>🔊 Playing on booth speaker... Listen carefully through the headset!</span>
-              <strong id="cooldownSeconds">6s</strong>
-            </div>
-            <div class="cooldown-meter">
-              <div class="cooldown-fill" id="cooldownFill" style="width: 100%;"></div>
-            </div>
-          </div>
-
-          <!-- Open Day Secret Challenge Prompt (No reveal button) -->
-          <div class="mystery-challenge-card">
-            <div class="challenge-icon-wrap">🎯</div>
-            <div class="challenge-text-wrap">
-              <strong>Open Day Rule: Keep It Secret!</strong>
-              <p>
-                The sentence text is hidden. Listen closely through the headset and tell our team at the booth what you heard to see if you guessed correctly!
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
 
     <!-- Section 6: Objective Evaluation & Findings -->
     <section class="section" id="findings">
