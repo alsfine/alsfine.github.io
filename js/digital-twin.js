@@ -5,14 +5,14 @@
  * Mystery sentences are strictly unrevealed — visitors must guess what they hear!
  */
 
-// Mystery sentence descriptors (Text is completely hidden from client source to preserve the guessing game)
+// Mystery sentence descriptors (Text and category hints are completely stripped — only Choice A, Choice B, etc.)
 const MYSTERY_SENTENCES = {
-  A: { id: 'A', label: 'Sentence A', hint: 'Wits Smart Lab' },
-  B: { id: 'B', label: 'Sentence B', hint: 'Open Day Poster' },
-  C: { id: 'C', label: 'Sentence C', hint: 'Campus Fun Trio' },
-  D: { id: 'D', label: 'Sentence D', hint: 'Engineering Pride' },
-  E: { id: 'E', label: 'Sentence E', hint: 'Acoustic Challenge' },
-  F: { id: 'F', label: 'Sentence F', hint: 'Project Authors' }
+  A: { id: 'A', label: 'Choice A' },
+  B: { id: 'B', label: 'Choice B' },
+  C: { id: 'C', label: 'Choice C' },
+  D: { id: 'D', label: 'Choice D' },
+  E: { id: 'E', label: 'Choice E' },
+  F: { id: 'F', label: 'Choice F' }
 };
 
 // MQTT Configuration (Free, public broker over secure WebSocket)
@@ -57,13 +57,13 @@ function initMysteryGame() {
 
   if (!select || !playBtn) return;
 
-  // Populate options (only label & category hint, never the answer)
+  // Populate options strictly as Choice A, Choice B, etc. (no hints or category info)
   select.innerHTML = '';
   Object.keys(MYSTERY_SENTENCES).forEach(key => {
     const s = MYSTERY_SENTENCES[key];
     const opt = document.createElement('option');
     opt.value = key;
-    opt.textContent = `Mystery ${s.label} (${s.hint})`;
+    opt.textContent = s.label;
     select.appendChild(opt);
   });
 
