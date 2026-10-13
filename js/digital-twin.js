@@ -33,7 +33,7 @@ const twinState = {
   audioLevel: 0,
   isAudioPresent: false,
   isVadActive: false,
-  isGameEnabled: true,       // Can be locked remotely by presenters via hotkey
+  isGameEnabled: false,      // Disabled until hardware passthrough connects and enables it
   isCooldown: false,
   cooldownRemaining: 0,
   mqttClient: null
@@ -80,11 +80,12 @@ function initMysteryGame() {
 
 /**
  * Triggers sentence playback with anti-abuse cooldown & sends MQTT packet
+ * The user's device ONLY sends the request to the laptop — NO audio is played on the user's device!
  */
 function triggerSentencePlayback(sentenceObj) {
   startCooldown(12);
 
-  // 1. Transmit command via MQTT if connected (only sends ID, never plaintext)
+  // Transmit command via MQTT (strictly sends sentence ID to laptop, never plays locally)
   if (twinState.mqttClient && twinState.mqttClient.isConnected()) {
     try {
       const payload = JSON.stringify({
@@ -98,37 +99,6 @@ function triggerSentencePlayback(sentenceObj) {
     } catch (e) {
       console.warn('MQTT send failed:', e);
     }
-  }
-
-  // 2. Play pre-rendered audio asset locally
-  playLocalSpeech(sentenceObj);
-
-  // 3. Animate the Digital Twin VU Meter in sync with speech
-  simulateSpeechVuPulse(4500);
-}
-
-/**
- * Plays pre-rendered high-quality audio clip directly from assets/audio/
- */
-function playLocalSpeech(sentenceObj) {
-  const audioPath = `assets/audio/mystery_${sentenceObj.id.toLowerCase()}.wav`;
-
-  try {
-    const audio = new Audio(audioPath);
-    audio.onplay = () => {
-      updateVadDisplay(true, 'VAD: Active (Speech Transmitted)');
-    };
-    audio.onended = () => {
-      updateVadDisplay(false, 'VAD: Idle');
-    };
-    audio.onerror = (e) => {
-      console.warn('Local audio element could not play asset:', audioPath, e);
-    };
-    audio.play().catch(err => {
-      console.warn('HTML5 Audio autoplay notice:', err);
-    });
-  } catch (e) {
-    console.warn('Audio playback error:', e);
   }
 }
 
@@ -212,6 +182,7 @@ function setHardwareOfflineUI() {
   twinState.isHardwareConnected = false;
   twinState.currentPipeline = null;
   twinState.currentFilter = null;
+  twinState.isGameEnabled = false;
 
   // 1. Connection Header Status Pill
   updateConnectionStatus(false, 'Hardware Offline (Awaiting Telemetry)');
@@ -247,6 +218,9 @@ function setHardwareOfflineUI() {
 
   // 5. Reset VU meter to 0%
   updateVuMeter(0);
+
+  // 6. Speaker panel disappears completely when hardware is offline
+  updateSpeakerPanelVisibility();
 }
 
 function setHardwareLiveUI() {
@@ -275,6 +249,25 @@ function setHardwareLiveUI() {
   if (vadBadge) {
     vadBadge.className = 'vad-status-badge';
     vadBadge.textContent = 'VAD: Tracking';
+  }
+
+  // 3. Update speaker panel visibility
+  updateSpeakerPanelVisibility();
+}
+
+/**
+ * Speaker panel visibility control:
+ * The panel will not appear at all until the passthrough has enabled it,
+ * and if the passthrough disables the user speaker input, the panel disappears.
+ */
+function updateSpeakerPanelVisibility() {
+  const boothGame = document.getElementById('booth-game');
+  if (!boothGame) return;
+
+  if (twinState.isHardwareConnected && twinState.isGameEnabled) {
+    boothGame.style.display = 'block';
+  } else {
+    boothGame.style.display = 'none';
   }
 }
 
@@ -344,35 +337,6 @@ function updateVadDisplay(isActive, text) {
     badge.className = 'vad-status-badge';
     badge.textContent = text || 'VAD: Tracking';
   }
-}
-
-/**
- * Simulates VU meter pulses during speech when live telemetry is offline
- */
-let vuPulseInterval = null;
-function simulateSpeechVuPulse(durationMs) {
-  if (vuPulseInterval) clearInterval(vuPulseInterval);
-  const start = Date.now();
-  updateVadDisplay(true, 'VAD: Active (Voice Detected)');
-
-  vuPulseInterval = setInterval(() => {
-    const elapsed = Date.now() - start;
-    if (elapsed > durationMs) {
-      clearInterval(vuPulseInterval);
-      vuPulseInterval = null;
-      if (!twinState.isHardwareConnected) {
-        updateVuMeter(0);
-        updateVadDisplay(false);
-      } else {
-        updateVuMeter(12);
-        updateVadDisplay(false, 'VAD: Tracking');
-      }
-    } else {
-      // Natural oscillating speech energy between 45% and 88%
-      const val = 50 + Math.sin(elapsed * 0.02) * 25 + Math.random() * 15;
-      updateVuMeter(val);
-    }
-  }, 80);
 }
 
 /**
@@ -460,35 +424,30 @@ function handleIncomingTelemetry(data) {
     updateVadDisplay(data.vad_active, data.vad_active ? 'VAD: Active (Adaptation Frozen)' : 'VAD: Tracking Room Noise');
   }
 
-  // 2. Presenter Master Lock Status
-  const playBtn = document.getElementById('playMysteryBtn');
-  const playBtnText = document.getElementById('playBtnText');
-  const statusBadge = document.getElementById('gameStatusBadge');
-  const statusText = document.getElementById('gameStatusText');
-
+  // 2. Presenter Speaker Input Control & Panel Visibility
   if (typeof data.game_enabled !== 'undefined') {
     twinState.isGameEnabled = Boolean(data.game_enabled);
+  }
 
-    if (!twinState.isGameEnabled) {
-      if (playBtn) playBtn.disabled = true;
-      if (playBtnText) playBtnText.textContent = '🔒 Speaker Locked by Presenter';
-      if (statusBadge) {
-        statusBadge.classList.remove('playing');
-        statusBadge.style.backgroundColor = '#fef2f2';
-        statusBadge.style.borderColor = '#fecaca';
-        statusBadge.style.color = '#b91c1c';
-      }
-      if (statusText) statusText.textContent = 'Demo in Progress (Speaker Locked)';
-    } else if (!twinState.isCooldown) {
-      if (playBtn) playBtn.disabled = false;
-      if (playBtnText) playBtnText.textContent = 'Transmit to Booth Speaker';
-      if (statusBadge) {
-        statusBadge.style.backgroundColor = '';
-        statusBadge.style.borderColor = '';
-        statusBadge.style.color = '';
-      }
-      if (statusText) statusText.textContent = 'Booth Speaker Ready';
+  // Per user requirements: The speaker panel will not appear at all until the passthrough has enabled it,
+  // and if the passthrough disables user speaker input, the panel disappears.
+  updateSpeakerPanelVisibility();
+
+  if (twinState.isGameEnabled && !twinState.isCooldown) {
+    const playBtn = document.getElementById('playMysteryBtn');
+    const playBtnText = document.getElementById('playBtnText');
+    const statusBadge = document.getElementById('gameStatusBadge');
+    const statusText = document.getElementById('gameStatusText');
+
+    if (playBtn) playBtn.disabled = false;
+    if (playBtnText) playBtnText.textContent = 'Transmit to Booth Speaker';
+    if (statusBadge) {
+      statusBadge.classList.remove('playing');
+      statusBadge.style.backgroundColor = '';
+      statusBadge.style.borderColor = '';
+      statusBadge.style.color = '';
     }
+    if (statusText) statusText.textContent = 'Booth Speaker Ready';
   }
 
   // 3. Hardware Cooldown Broadcast Sync
