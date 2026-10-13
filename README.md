@@ -54,10 +54,9 @@ Website/
 │   └── style.css            # Light-mode default + automatic OS dark mode
 ├── js/
 │   ├── app.js               # Mobile interactions & animated metric bars
+│   ├── digital-twin.js      # Live ESP32-S3 telemetry & mystery game trigger
+│   ├── paho-mqtt.min.js     # MQTT over WebSocket client library
 │   └── visual-slider.js     # Touch-friendly Before/After signal comparison slider
-├── assets/
-│   ├── results/             # Archived research graphs (reference storage)
-│   ├── figures/             # Archived conceptual plots (reference storage)
-│   └── audio/               # Archived test audio clips (reference storage)
+├── assets/                  # Optional static public assets (no data or audio files)
 └── README.md                # This deployment guide
 ```

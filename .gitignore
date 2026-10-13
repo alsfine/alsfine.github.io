@@ -1,0 +1,14 @@
+# Prevent committing audio files or data dumps to public website
+*.wav
+*.mp3
+*.m4a
+*.flac
+*.ogg
+*.raw
+*.pcm
+*.zip
+*.tar.gz
+
+# System files
+.DS_Store
+Thumbs.db
