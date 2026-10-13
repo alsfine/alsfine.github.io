@@ -1,4 +1,4 @@
-# ClearVoice DSP — Open Day Website
+# Can You Hear Me? Enhancing Speech Quality in Loud Musical Environments — Open Day Website
 
 This directory contains the mobile-first, interactive demonstration website created for the **University of the Witwatersrand EIE Open Day** by **Ryan Jammy** and **Raphael Alsfine**.
 
