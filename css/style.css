@@ -1160,7 +1160,7 @@ strong {
 
 @media (min-width: 640px) {
   .twin-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -1171,7 +1171,8 @@ strong {
   padding: 14px;
   display: flex;
   flex-direction: column;
-  transition: var(--transition);
+  min-width: 0;
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .twin-card-header-row {
@@ -1180,10 +1181,14 @@ strong {
   justify-content: space-between;
   gap: 8px;
   margin-bottom: 10px;
+  min-height: 24px;
 }
 
 .twin-card-header-row .twin-card-label {
   margin-bottom: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .twin-card-label {
@@ -1202,10 +1207,13 @@ strong {
   border-radius: var(--radius-full);
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  transition: var(--transition);
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 .twin-state-badge.offline {
@@ -1289,6 +1297,11 @@ strong {
     border-color: #881337;
     color: #fca5a5;
   }
+  .vad-status-badge.active {
+    background-color: #451a03;
+    border-color: #78350f;
+    color: #fde68a;
+  }
   .twin-offline-hint {
     background-color: #2d2315;
     border-color: #78350f;
@@ -1348,17 +1361,33 @@ strong {
   justify-content: space-between;
   gap: 8px;
   margin-bottom: 12px;
+  min-height: 24px;
+}
+
+.twin-meter-header .twin-card-label {
+  margin-bottom: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .vad-status-badge {
-  font-size: 0.72rem;
+  font-size: 0.70rem;
   font-weight: 700;
-  padding: 3px 8px;
+  padding: 2px 8px;
   border-radius: var(--radius-full);
   background-color: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   color: var(--text-faint);
-  transition: var(--transition);
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: 96px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-sizing: border-box;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .vad-status-badge.offline {

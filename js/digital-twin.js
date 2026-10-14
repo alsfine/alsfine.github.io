@@ -248,7 +248,7 @@ function setHardwareLiveUI() {
   const vadBadge = document.getElementById('vadStatusBadge');
   if (vadBadge) {
     vadBadge.className = 'vad-status-badge';
-    vadBadge.textContent = 'VAD: Tracking';
+    vadBadge.textContent = 'Noise Tracking';
   }
 
   // 3. Update speaker panel visibility
@@ -332,10 +332,10 @@ function updateVadDisplay(isActive, text) {
   }
   if (isActive) {
     badge.className = 'vad-status-badge active';
-    badge.textContent = text || 'VAD: Voice Protected';
+    badge.textContent = text || 'Voice Active';
   } else {
     badge.className = 'vad-status-badge';
-    badge.textContent = text || 'VAD: Tracking';
+    badge.textContent = text || 'Noise Tracking';
   }
 }
 
@@ -421,7 +421,7 @@ function handleIncomingTelemetry(data) {
   }
 
   if (typeof data.vad_active !== 'undefined') {
-    updateVadDisplay(data.vad_active, data.vad_active ? 'VAD: Active (Adaptation Frozen)' : 'VAD: Tracking Room Noise');
+    updateVadDisplay(data.vad_active, data.vad_active ? 'Voice Active' : 'Noise Tracking');
   }
 
   // 2. Presenter Speaker Input Control & Panel Visibility
