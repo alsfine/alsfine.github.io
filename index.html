@@ -141,7 +141,7 @@
           </div>
         </div>
 
-        <!-- Open Day Live Challenge: Guess the Mystery Sentence (Enabled only when passthrough is active) -->
+        <!-- Open Day Live Challenge: Guess the Mystery Sentence (Admin speaker page — only visible with secret URL) -->
         <div class="game-box" id="booth-game" style="display: none;">
           <div class="game-header-bar">
             <div>
@@ -150,19 +150,19 @@
             </div>
             <div class="game-status-badge" id="gameStatusBadge">
               <span class="pulse-dot"></span>
-              <span id="gameStatusText">Booth Speaker Ready</span>
+              <span id="gameStatusText">Speaker Ready</span>
             </div>
           </div>
 
           <p class="game-intro">
-            Put on the demonstration headset at our booth! Select a mystery sentence below and tap <strong>Transmit to Booth Speaker</strong>. The laptop will play the speech into the microphone while music blasts. Listen in your headset and see if you can guess what was said!
+            This is the <strong>demo speaker page</strong>. Select a mystery sentence below and tap <strong>Play Through Speaker</strong>. The audio will play out of this device's speaker into the microphone while music blasts. The headset wearer must guess what was said!
           </p>
 
           <!-- Mystery Sentence Dropdown & Trigger Button -->
           <div class="game-control-row">
             <div class="game-select-group">
               <label for="mysterySentenceSelect" class="game-label">Select Mystery Choice:</label>
-              <select id="mysterySentenceSelect" class="game-dropdown" aria-label="Select a mystery choice to play through the booth speaker">
+              <select id="mysterySentenceSelect" class="game-dropdown" aria-label="Select a mystery choice to play through this device's speaker">
                 <option value="A">Choice A</option>
                 <option value="B">Choice B</option>
                 <option value="C">Choice C</option>
@@ -174,14 +174,14 @@
             
             <button type="button" id="playMysteryBtn" class="game-play-btn">
               <span class="play-icon">🔊</span>
-              <span id="playBtnText">Transmit to Booth Speaker</span>
+              <span id="playBtnText">Play Through Speaker</span>
             </button>
           </div>
 
-          <!-- Cooldown & Transmission Progress Indicator -->
+          <!-- Cooldown & Playback Progress Indicator -->
           <div class="cooldown-container" id="cooldownContainer" style="display: none;">
             <div class="cooldown-info">
-              <span>🔊 Playing on booth speaker... Listen carefully through the headset!</span>
+              <span>🔊 Playing through speaker... Listen carefully through the headset!</span>
               <strong id="cooldownSeconds">6s</strong>
             </div>
             <div class="cooldown-meter">
